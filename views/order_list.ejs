@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 내역 - 모아서</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif;background:#f8f8f6;color:#1a1a1a}
+        a{text-decoration:none;color:inherit}
+
+        .topbar{background:#1a1a1a;padding:9px 0;font-size:11.5px;color:#888;letter-spacing:.3px}
+        .topbar-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:flex-end;align-items:center}
+        .topbar a{color:#888;transition:color .2s}
+        .topbar a:hover{color:#fff}
+        .t-sep{margin:0 12px;color:#3a3a3a}
+        .t-hi{color:#c8a97a;font-weight:600}
+
+        .header{background:#fff;border-bottom:1px solid #e2e0db}
+        .header-inner{max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;gap:32px}
+        .logo{display:flex;flex-direction:column;cursor:pointer;margin-right:12px;flex-shrink:0}
+        .logo-text{font-size:26px;font-weight:900;letter-spacing:-1.5px;color:#1a1a1a;line-height:1}
+        .logo-sub{font-size:9.5px;letter-spacing:3px;color:#aaa;margin-top:3px;text-transform:uppercase}
+
+        .search-outer{flex:1;max-width:520px}
+        .search-inner{display:flex;border:1.5px solid #1a1a1a;height:44px}
+        .search-inner input{flex:1;border:none;padding:0 18px;font-size:13.5px;outline:none;background:#fff}
+        .search-inner input::placeholder{color:#bbb}
+        .search-inner button{background:#1a1a1a;color:#fff;border:none;padding:0 22px;font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:1px}
+        .search-inner button:hover{background:#9b7f5a}
+
+        .hd-actions{display:flex;gap:2px;margin-left:auto}
+        .hd-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;font-size:10.5px;color:#666;background:none;border:none;cursor:pointer;letter-spacing:.5px;transition:color .2s}
+        .hd-btn:hover{color:#9b7f5a}
+        .hd-btn.active-page{color:#1a1a1a;font-weight:700}
+        .hd-ico{font-size:19px;line-height:1}
+
+        .gnb{background:#fff;border-bottom:1.5px solid #1a1a1a}
+        .gnb-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex}
+        .gnb a{display:flex;align-items:center;height:44px;padding:0 22px;font-size:13px;font-weight:700;color:#444;letter-spacing:.8px;border-bottom:2.5px solid transparent;transition:all .2s}
+        .gnb a:hover{color:#1a1a1a;border-bottom-color:#1a1a1a}
+
+        .page-wrap{max-width:900px;margin:48px auto;padding:0 32px 80px}
+
+        .page-hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:1.5px solid #1a1a1a}
+        .page-title{font-size:22px;font-weight:900;letter-spacing:-1px}
+        .page-title span{font-size:12px;font-weight:400;color:#aaa;letter-spacing:2px;margin-left:10px}
+        .order-count{font-size:12.5px;color:#888}
+
+        /* 주문 카드 */
+        .order-card{background:#fff;border:1px solid #e2e0db;margin-bottom:24px}
+        .order-card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;background:#faf9f7;border-bottom:1px solid #e2e0db}
+        .order-meta{display:flex;align-items:center;gap:20px}
+        .order-num{font-size:12px;font-weight:700;letter-spacing:.5px;color:#1a1a1a}
+        .order-date{font-size:12px;color:#aaa}
+        .order-status{font-size:12px;font-weight:700;letter-spacing:1px;padding:4px 12px;border:1.5px solid #1a1a1a;color:#1a1a1a}
+
+        .order-card-body{padding:20px 22px}
+
+        /* 배송 정보 */
+        .delivery-box{background:#faf9f7;border:1px solid #f0ede8;padding:14px 18px;margin-bottom:20px;display:flex;gap:32px}
+        .delivery-field{font-size:12.5px;color:#666}
+        .delivery-field strong{display:block;font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:3px}
+
+        /* 상품 목록 */
+        .item-list{}
+        .item-row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid #f5f5f3}
+        .item-row:last-child{border-bottom:none}
+        .item-img{width:64px;height:64px;object-fit:cover;border:1px solid #e2e0db;flex-shrink:0}
+        .item-detail{flex:1}
+        .item-name{font-size:13.5px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+        .item-meta{font-size:12px;color:#999}
+        .item-subtotal{font-size:14px;font-weight:900;color:#1a1a1a;white-space:nowrap}
+
+        /* 카드 푸터 */
+        .order-card-ft{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-top:1px solid #e2e0db;background:#fff}
+        .ft-back{font-size:12px;color:#aaa;cursor:pointer;letter-spacing:.3px}
+        .ft-back:hover{color:#1a1a1a}
+        .ft-total{display:flex;align-items:baseline;gap:10px}
+        .ft-total-label{font-size:12px;font-weight:700;letter-spacing:1px;color:#888}
+        .ft-total-price{font-size:20px;font-weight:900;color:#1a1a1a;letter-spacing:-1px}
+
+        /* 빈 상태 */
+        .empty-wrap{text-align:center;padding:100px 0;background:#fff;border:1px solid #e2e0db}
+        .empty-ico{font-size:48px;margin-bottom:20px}
+        .empty-txt{font-size:14px;color:#bbb;letter-spacing:.5px;margin-bottom:28px}
+        .btn-go{display:inline-block;padding:13px 36px;background:#1a1a1a;color:#fff;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;border:none}
+        .btn-go:hover{background:#9b7f5a}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <a href="/admin">관리자</a><span class="t-sep">|</span>
+        <% if (locals.user) { %>
+            <span class="t-hi"><%= user.username %></span>님 안녕하세요<span class="t-sep">|</span>
+            <a href="/logout">로그아웃</a>
+        <% } else { %>
+            <a href="/login">로그인</a><span class="t-sep">|</span>
+            <a href="/signup">회원가입</a>
+        <% } %>
+        <span class="t-sep">|</span>
+        <a href="/cs">고객센터</a>
+    </div>
+</div>
+
+<div class="header">
+    <div class="header-inner">
+        <div class="logo" onclick="location.href='/'">
+            <span class="logo-text">모아서</span>
+            <span class="logo-sub">premium market</span>
+        </div>
+        <div class="search-outer">
+            <div class="search-inner">
+                <input type="text" placeholder="찾고 싶은 상품을 입력하세요">
+                <button>SEARCH</button>
+            </div>
+        </div>
+        <div class="hd-actions">
+            <button class="hd-btn" onclick="alert('마이페이지는 준비 중입니다! 😊')">
+                <span class="hd-ico">👤</span>MY PAGE
+            </button>
+            <button class="hd-btn active-page" onclick="location.href='/my/orders'">
+                <span class="hd-ico">📜</span>ORDER
+            </button>
+            <button class="hd-btn" onclick="location.href='/cart'">
+                <span class="hd-ico">🛒</span>CART
+            </button>
+        </div>
+    </div>
+</div>
+
+<nav class="gnb">
+    <div class="gnb-inner">
+        <a href="/category/수산물">수산물</a>
+        <a href="/category/농산물">농산물</a>
+        <a href="/category/의류">의류</a>
+    </div>
+</nav>
+
+<div class="page-wrap">
+    <div class="page-hd">
+        <div class="page-title">주문 내역 <span>MY ORDERS</span></div>
+        <span class="order-count">총 <%= orders.length %>건</span>
+    </div>
+
+    <% if (orders.length > 0) { %>
+        <% orders.forEach(order => { %>
+            <div class="order-card">
+                <div class="order-card-hd">
+                    <div class="order-meta">
+                        <span class="order-num">주문번호 #<%= order.id %></span>
+                        <span class="order-date"><%= new Date(order.created_at).toLocaleString('ko-KR') %></span>
+                    </div>
+                    <div class="order-status"><%= order.status %></div>
+                </div>
+
+                <div class="order-card-body">
+                    <div class="delivery-box">
+                        <div class="delivery-field">
+                            <strong>수령인</strong>
+                            <%= order.receiver_name %>
+                        </div>
+                        <div class="delivery-field">
+                            <strong>연락처</strong>
+                            <%= order.receiver_phone %>
+                        </div>
+                        <div class="delivery-field">
+                            <strong>배송지</strong>
+                            <%= order.address %> <%= order.address_detail %>
+                        </div>
+                    </div>
+
+                    <div class="item-list">
+                        <% order.items.forEach(item => { %>
+                            <div class="item-row">
+                                <img src="<%= item.image_url %>" class="item-img" onerror="this.src='/images/default.jpg'">
+                                <div class="item-detail">
+                                    <div class="item-name"><%= item.name %></div>
+                                    <div class="item-meta"><%= item.price.toLocaleString() %>원 × <%= item.quantity %>개</div>
+                                </div>
+                                <div class="item-subtotal"><%= (item.price * item.quantity).toLocaleString() %>원</div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="order-card-ft">
+                    <span class="ft-back" onclick="location.href='/'">← 쇼핑 계속하기</span>
+                    <div class="ft-total">
+                        <span class="ft-total-label">총 결제금액</span>
+                        <span class="ft-total-price"><%= order.total_price.toLocaleString() %>원</span>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+
+    <% } else { %>
+        <div class="empty-wrap">
+            <div class="empty-ico">📦</div>
+            <p class="empty-txt">아직 주문 내역이 없습니다</p>
+            <button class="btn-go" onclick="location.href='/'">쇼핑하러 가기</button>
+        </div>
+    <% } %>
+</div>
+
+</body>
+</html>

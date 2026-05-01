@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 등록 - 모아서 관리자</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], select, input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-submit { flex: 2; padding: 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-cancel { flex: 1; padding: 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; }
+        .btn-home { flex: 1; padding: 15px; background-color: #343a40; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; }
+        .btn-submit:hover { background-color: #004494; }
+        .help-text { font-size: 12px; color: #666; margin-top: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>📦 새 상품 등록</h2>
+        <form action="/admin/add" method="POST" enctype="multipart/form-data">
+            
+            <div class="form-group">
+                <label>상품명</label>
+                <input type="text" name="name" required placeholder="예: 햇 고구마 3kg">
+            </div>
+
+            <div class="form-group">
+                <label>가격 (원)</label>
+                <input type="number" name="price" required placeholder="예: 15000">
+            </div>
+
+            <div class="form-group">
+                <label>카테고리</label>
+                <select name="category">
+                    <option value="수산물">수산물</option>
+                    <option value="농산물">농산물</option>
+                    <option value="의류">의류</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>타겟 월 (1~12월)</label>
+                <select name="target_month">
+                    <% for(let i=1; i<=12; i++) { %>
+                        <option value="<%= i %>"><%= i %>월 상품</option>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>초기 재고 (개)</label>
+                <input type="number" name="stock" required placeholder="예: 50">
+            </div>
+
+            <div class="form-group">
+                <label>상품 사진 업로드</label>
+                <input type="file" name="image_file" accept="image/*" required>
+                <div class="help-text">내 컴퓨터에 있는 이미지 파일을 선택하세요.</div>
+            </div>
+
+            <div class="form-group">
+                <label>재배지 / 원산지</label>
+                <input type="text" name="origin" placeholder="예: 전남 해남 (선택사항)">
+            </div>
+
+            <div class="form-group">
+                <label>배송료 (원)</label>
+                <input type="number" name="shipping_fee" value="3000" required>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-submit">DB에 등록하기</button>
+                <a href="/admin" class="btn-cancel">목록으로</a>
+                <a href="/" class="btn-home">🏠 홈</a>
+            </div>
+
+        </form>
+    </div>
+
+</body>
+</html>

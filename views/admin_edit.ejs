@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 수정 - 모아서 관리자</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif;background:#f8f8f6;color:#1a1a1a}
+        a{text-decoration:none;color:inherit}
+        ul{list-style:none}
+
+        :root{--p:#1a1a1a;--acc:#9b7f5a;--acc-l:#f5f0ea;--line:#e2e0db}
+        body.theme-수산물{--acc:#2a6496;--acc-l:#eaf3fa;--line:#d0e4f0}
+        body.theme-농산물{--acc:#3a6b3a;--acc-l:#eaf4ea;--line:#cde3cd}
+        body.theme-의류{--acc:#5a4a7a;--acc-l:#f0edf8;--line:#ddd6ee}
+
+        .topbar{background:#1a1a1a;padding:9px 0;font-size:11.5px;color:#888;letter-spacing:.3px}
+        .topbar-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:flex-end;align-items:center}
+        
+        .header{background:#fff;border-bottom:1px solid var(--line)}
+        .header-inner{max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;}
+        .logo-text{font-size:26px;font-weight:900;letter-spacing:-1.5px;color:#1a1a1a;line-height:1}
+        .logo-sub{font-size:9.5px;letter-spacing:3px;color:#aaa;margin-top:3px;text-transform:uppercase}
+        .admin-badge{background:var(--acc);color:#fff;font-size:10px;padding:2px 6px;margin-left:10px;border-radius:3px;vertical-align:middle;}
+
+        .wrap{max-width:1280px;margin:40px auto;padding:0 32px;display:flex;justify-content:center;}
+        .content{width:100%;max-width:640px;background:#fff;border:1px solid var(--line);padding:40px 50px;}
+        
+        .sec-hd{display:flex;align-items:flex-end;gap:10px;margin-bottom:30px;padding-bottom:14px;border-bottom:2px solid #1a1a1a}
+        .sec-ttl{font-size:18px;font-weight:900;letter-spacing:-.5px;color:#1a1a1a}
+        .sec-en{font-size:10.5px;font-weight:700;letter-spacing:3px;color:#bbb;margin-left:4px}
+
+        .form-group { margin-bottom: 24px; }
+        label { display: block; font-size:12.5px; font-weight: 700; margin-bottom: 8px; color:#444; letter-spacing:0.5px; }
+        input[type="text"], input[type="number"], select { 
+            width: 100%; padding: 12px 14px; border: 1px solid var(--line); background:#fff; 
+            font-size: 13.5px; outline: none; font-family:inherit; transition: border .2s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #1a1a1a; }
+        
+        .img-preview-box { border:1px solid var(--line); padding:10px; background:#f8f8f6; margin-bottom:10px; display:inline-block;}
+        .current-img { width: 100px; height: 100px; object-fit: cover; display:block;}
+        input[type="file"] { font-size:12px; color:#666; padding:8px 0;}
+
+        .btn-group { display: flex; gap: 10px; margin-top: 40px; }
+        .btn-submit { 
+            flex: 2; padding: 16px; background: #1a1a1a; color: #fff; border: none; 
+            font-size: 13.5px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: background .2s; 
+        }
+        .btn-submit:hover { background: var(--acc); }
+        
+        .btn-cancel { 
+            flex: 1; padding: 16px; background: #fff; color: #1a1a1a; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
+            font-size: 13.5px; font-weight: 700; text-align: center; letter-spacing: 1px; transition: all .2s; 
+        }
+        .btn-cancel:hover { background: #f8f8f6; border-color:#1a1a1a; }
+    </style>
+</head>
+<body class="theme-<%= product.category %>">
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <span>모아서 관리자 시스템</span>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-text">모아서<span class="admin-badge">ADMIN</span></span>
+                <span class="logo-sub">premium market</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <main class="content">
+            <div class="sec-hd">
+                <span class="sec-ttl">상품 정보 수정</span>
+                <span class="sec-en">EDIT ITEM</span>
+            </div>
+
+            <form action="/admin/edit/<%= product.id %>" method="POST" enctype="multipart/form-data">
+                
+                <div class="form-group">
+                    <label>상품명</label>
+                    <input type="text" name="name" value="<%= product.name %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>가격 (원)</label>
+                    <input type="number" name="price" value="<%= product.price %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>카테고리 (현재: <%= product.category %>)</label>
+                    <select name="category">
+                        <option value="수산물" <%= product.category === '수산물' ? 'selected' : '' %>>수산물</option>
+                        <option value="농산물" <%= product.category === '농산물' ? 'selected' : '' %>>농산물</option>
+                        <option value="의류" <%= product.category === '의류' ? 'selected' : '' %>>의류</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>타겟 월</label>
+                    <select name="target_month">
+                        <% for(let i=1; i<=12; i++) { %>
+                            <option value="<%= i %>" <%= product.target_month == i ? 'selected' : '' %>><%= i %>월 상품</option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>재고 (개)</label>
+                    <input type="number" name="stock" value="<%= product.stock %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>현재 이미지</label>
+                    <div class="img-preview-box">
+                        <img src="<%= product.image_url %>" class="current-img">
+                    </div>
+                    <br>
+                    <label>사진 변경 (변경할 때만 파일을 선택하세요)</label>
+                    <input type="file" name="image_file" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>재배지 / 원산지</label>
+                    <input type="text" name="origin" value="<%= product.origin %>">
+                </div>
+
+                <div class="form-group">
+                    <label>배송료 (원)</label>
+                    <input type="number" name="shipping_fee" value="<%= product.shipping_fee %>" required>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-submit">수정사항 저장하기</button>
+                    <a href="/admin" class="btn-cancel">취소</a>
+                </div>
+
+            </form>
+        </main>
+    </div>
+
+</body>
+</html>

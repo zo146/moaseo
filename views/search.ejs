@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>검색결과 - 모아서</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif;background:#f8f8f6;color:#1a1a1a}
+        a{text-decoration:none;color:inherit}
+
+        .topbar{background:#1a1a1a;padding:9px 0;font-size:11.5px;color:#888;letter-spacing:.3px}
+        .topbar-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:flex-end;align-items:center}
+        .topbar a{color:#888;transition:color .2s}
+        .topbar a:hover{color:#fff}
+        .t-sep{margin:0 12px;color:#3a3a3a}
+        .t-hi{color:#c8a97a;font-weight:600}
+
+        .header{background:#fff;border-bottom:1px solid #e2e0db}
+        .header-inner{max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;gap:32px}
+        .logo{display:flex;flex-direction:column;cursor:pointer;margin-right:12px;flex-shrink:0}
+        .logo-text{font-size:26px;font-weight:900;letter-spacing:-1.5px;color:#1a1a1a;line-height:1}
+        .logo-sub{font-size:9.5px;letter-spacing:3px;color:#aaa;margin-top:3px;text-transform:uppercase}
+
+        .search-outer{flex:1;max-width:520px;position:relative}
+        .search-inner{display:flex;border:1.5px solid #1a1a1a;height:44px}
+        .search-inner input{flex:1;border:none;padding:0 18px;font-size:13.5px;outline:none;background:#fff;letter-spacing:.2px}
+        .search-inner input::placeholder{color:#bbb}
+        .search-inner button{background:#1a1a1a;color:#fff;border:none;padding:0 22px;font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:background .2s}
+        .search-inner button:hover{background:#9b7f5a}
+
+        /* 검색기록 드롭다운 */
+        .search-dropdown{position:absolute;top:48px;left:0;width:100%;background:#fff;border:1.5px solid #1a1a1a;border-top:none;z-index:999;display:none}
+        .search-dropdown.show{display:block}
+        .dropdown-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #f0ede8}
+        .dropdown-header span{font-size:11px;font-weight:700;color:#888;letter-spacing:1px}
+        .clear-all{font-size:11px;color:#aaa;cursor:pointer;transition:color .2s}
+        .clear-all:hover{color:#c0392b}
+        .history-item{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid #f8f8f6}
+        .history-item:hover{background:#f8f8f6}
+        .history-left{display:flex;align-items:center;gap:10px;flex:1}
+        .history-clock{font-size:13px;color:#bbb}
+        .history-text{font-size:13.5px;color:#333}
+        .history-del{font-size:16px;color:#ccc;cursor:pointer;padding:0 4px;transition:color .2s;line-height:1}
+        .history-del:hover{color:#c0392b}
+        .no-history{padding:20px 16px;text-align:center;font-size:12.5px;color:#bbb;letter-spacing:.5px}
+
+        .hd-actions{display:flex;gap:2px;margin-left:auto}
+        .hd-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;font-size:10.5px;color:#666;background:none;border:none;cursor:pointer;letter-spacing:.5px;transition:color .2s}
+        .hd-btn:hover{color:#9b7f5a}
+        .hd-ico{font-size:19px;line-height:1}
+
+        .gnb{background:#fff;border-bottom:1.5px solid #1a1a1a}
+        .gnb-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex}
+        .gnb a{display:flex;align-items:center;height:44px;padding:0 22px;font-size:13px;font-weight:700;color:#444;letter-spacing:.8px;border-bottom:2.5px solid transparent;transition:all .2s}
+        .gnb a:hover{color:#1a1a1a;border-bottom-color:#1a1a1a}
+
+        .page-wrap{max-width:900px;margin:48px auto;padding:0 32px 80px}
+
+        .result-hd{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1.5px solid #1a1a1a}
+        .result-ttl{font-size:20px;font-weight:900;letter-spacing:-.5px}
+        .result-keyword{color:#2a6496;font-weight:900}
+        .result-count{font-size:13px;color:#aaa;margin-left:4px}
+
+        /* 검색 결과 리스트 */
+        .result-list{background:#fff;border:1px solid #e2e0db}
+        .result-item{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid #f5f5f3;cursor:pointer;transition:background .15s}
+        .result-item:last-child{border-bottom:none}
+        .result-item:hover{background:#f8f8f6}
+        .result-left{display:flex;align-items:center;gap:16px}
+        .result-img{width:52px;height:52px;object-fit:cover;border:1px solid #e2e0db;flex-shrink:0}
+        .result-name{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+        .result-name .highlight{color:#2a6496;background:#eaf3fa;padding:0 2px}
+        .result-cat{font-size:11.5px;color:#aaa;font-weight:400}
+        .result-price{font-size:15px;font-weight:900;color:#1a1a1a;white-space:nowrap}
+
+        /* 없는 상품 */
+        .no-result{text-align:center;padding:80px 0;background:#fff;border:1px solid #e2e0db}
+        .no-result-ico{font-size:44px;margin-bottom:16px}
+        .no-result-txt{font-size:15px;color:#888;margin-bottom:6px}
+        .no-result-sub{font-size:13px;color:#bbb}
+        .btn-home{display:inline-block;margin-top:24px;padding:12px 32px;background:#1a1a1a;color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;border:none;transition:background .2s}
+        .btn-home:hover{background:#9b7f5a}
+
+        /* 검색 없이 진입 */
+        .empty-search{text-align:center;padding:80px 0}
+        .empty-search-ico{font-size:44px;margin-bottom:16px}
+        .empty-search-txt{font-size:15px;color:#888}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <a href="/admin">관리자</a><span class="t-sep">|</span>
+        <% if (locals.user) { %>
+            <span class="t-hi"><%= user.username %></span>님 안녕하세요<span class="t-sep">|</span>
+            <a href="/logout">로그아웃</a>
+        <% } else { %>
+            <a href="/login">로그인</a><span class="t-sep">|</span>
+            <a href="/signup">회원가입</a>
+        <% } %>
+        <span class="t-sep">|</span>
+        <a href="/cs">고객센터</a>
+    </div>
+</div>
+
+<div class="header">
+    <div class="header-inner">
+        <div class="logo" onclick="location.href='/'">
+            <span class="logo-text">모아서</span>
+            <span class="logo-sub">premium market</span>
+        </div>
+        <div class="search-outer" id="searchOuter">
+            <div class="search-inner">
+                <input type="text" id="searchInput" placeholder="찾고 싶은 상품을 입력하세요"
+                       value="<%= keyword %>" autocomplete="off"
+                       onfocus="showDropdown()" onkeydown="handleKey(event)">
+                <button onclick="doSearch()">SEARCH</button>
+            </div>
+            <div class="search-dropdown" id="searchDropdown">
+                <div class="dropdown-header">
+                    <span>🕐 최근 검색어</span>
+                    <span class="clear-all" onclick="clearAll()">전체 삭제</span>
+                </div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+        <div class="hd-actions">
+            <button class="hd-btn" onclick="alert('마이페이지는 준비 중입니다! 😊')">
+                <span class="hd-ico">👤</span>MY PAGE
+            </button>
+            <button class="hd-btn" onclick="location.href='/my/orders'">
+                <span class="hd-ico">📜</span>ORDER
+            </button>
+            <button class="hd-btn" onclick="location.href='/cart'">
+                <span class="hd-ico">🛒</span>CART
+            </button>
+        </div>
+    </div>
+</div>
+
+<nav class="gnb">
+    <div class="gnb-inner">
+        <a href="/category/수산물">수산물</a>
+        <a href="/category/농산물">농산물</a>
+        <a href="/category/의류">의류</a>
+    </div>
+</nav>
+
+<div class="page-wrap">
+
+    <% if (!keyword) { %>
+        <div class="empty-search">
+            <div class="empty-search-ico">🔍</div>
+            <div class="empty-search-txt">검색어를 입력해주세요</div>
+        </div>
+
+    <% } else if (results.length === 0) { %>
+        <div class="result-hd">
+            <span class="result-ttl">"<span class="result-keyword"><%= keyword %></span>" 검색 결과</span>
+            <span class="result-count">0건</span>
+        </div>
+        <div class="no-result">
+            <div class="no-result-ico">😔</div>
+            <div class="no-result-txt">"<%= keyword %>"에 해당하는 상품이 없습니다</div>
+            <div class="no-result-sub">다른 검색어로 다시 시도해보세요</div>
+            <button class="btn-home" onclick="location.href='/'">홈으로 돌아가기</button>
+        </div>
+
+    <% } else { %>
+        <div class="result-hd">
+            <span class="result-ttl">"<span class="result-keyword"><%= keyword %></span>" 검색 결과</span>
+            <span class="result-count"><%= results.length %>건</span>
+        </div>
+        <div class="result-list">
+            <% results.forEach(item => { %>
+                <a href="/product/<%= item.id %>">
+                    <div class="result-item">
+                        <div class="result-left">
+                            <img src="<%= item.image_url %>" class="result-img" onerror="this.src='/images/default.jpg'">
+                            <div>
+                                <div class="result-name">
+                                    <%- item.name.replace(new RegExp(keyword, 'gi'), match => `<span class="highlight">${match}</span>`) %>
+                                </div>
+                                <div class="result-cat"><%= item.category %> · <%= item.target_month %>월 제철</div>
+                            </div>
+                        </div>
+                        <div class="result-price"><%= item.price.toLocaleString() %>원</div>
+                    </div>
+                </a>
+            <% }) %>
+        </div>
+    <% } %>
+
+</div>
+
+<script>
+    /* ── 검색기록 ── */
+    function getHistory() {
+        return JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    }
+    function saveHistory(keyword) {
+        let history = getHistory();
+        history = history.filter(h => h !== keyword); // 중복 제거
+        history.unshift(keyword); // 맨 앞에 추가
+        if(history.length > 10) history = history.slice(0, 10); // 최대 10개
+        localStorage.setItem('searchHistory', JSON.stringify(history));
+    }
+    function deleteHistory(keyword) {
+        let history = getHistory().filter(h => h !== keyword);
+        localStorage.setItem('searchHistory', JSON.stringify(history));
+        renderHistory();
+    }
+    function clearAll() {
+        localStorage.removeItem('searchHistory');
+        renderHistory();
+    }
+    function renderHistory() {
+        const history = getHistory();
+        const list = document.getElementById('historyList');
+        if(history.length === 0) {
+            list.innerHTML = '<div class="no-history">최근 검색어가 없습니다</div>';
+            return;
+        }
+        list.innerHTML = history.map(h => `
+            <div class="history-item">
+                <div class="history-left" onclick="selectHistory('${h}')">
+                    <span class="history-clock">🕐</span>
+                    <span class="history-text">${h}</span>
+                </div>
+                <span class="history-del" onclick="event.stopPropagation(); deleteHistory('${h}')">×</span>
+            </div>
+        `).join('');
+    }
+    function selectHistory(keyword) {
+        document.getElementById('searchInput').value = keyword;
+        doSearch();
+    }
+    function showDropdown() {
+        renderHistory();
+        document.getElementById('searchDropdown').classList.add('show');
+    }
+    function hideDropdown() {
+        document.getElementById('searchDropdown').classList.remove('show');
+    }
+
+    /* ── 검색 실행 ── */
+    function doSearch() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if(!keyword) return alert('검색어를 입력해주세요!');
+        saveHistory(keyword);
+        location.href = '/search?q=' + encodeURIComponent(keyword);
+    }
+    function handleKey(e) {
+        if(e.key === 'Enter') doSearch();
+    }
+
+    /* ── 외부 클릭 시 드롭다운 닫기 ── */
+    document.addEventListener('click', function(e) {
+        const outer = document.getElementById('searchOuter');
+        if(!outer.contains(e.target)) hideDropdown();
+    });
+
+    /* ── 페이지 로드 시 검색기록 저장 ── */
+    const currentKeyword = '<%= keyword %>';
+    if(currentKeyword) saveHistory(currentKeyword);
+</script>
+</body>
+</html>

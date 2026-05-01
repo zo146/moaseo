@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>장바구니 - 모아서</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif;background:#f8f8f6;color:#1a1a1a}
+        a{text-decoration:none;color:inherit}
+        ul{list-style:none}
+
+        .topbar{background:#1a1a1a;padding:9px 0;font-size:11.5px;color:#888;letter-spacing:.3px}
+        .topbar-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:flex-end;align-items:center}
+        .topbar a{color:#888;transition:color .2s}
+        .topbar a:hover{color:#fff}
+        .t-sep{margin:0 12px;color:#3a3a3a}
+        .t-hi{color:#c8a97a;font-weight:600}
+
+        .header{background:#fff;border-bottom:1px solid #e2e0db}
+        .header-inner{max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;gap:32px}
+        .logo{display:flex;flex-direction:column;cursor:pointer;margin-right:12px;flex-shrink:0}
+        .logo-text{font-size:26px;font-weight:900;letter-spacing:-1.5px;color:#1a1a1a;line-height:1}
+        .logo-sub{font-size:9.5px;letter-spacing:3px;color:#aaa;margin-top:3px;text-transform:uppercase}
+
+        .search-outer{flex:1;max-width:520px}
+        .search-inner{display:flex;border:1.5px solid #1a1a1a;height:44px}
+        .search-inner input{flex:1;border:none;padding:0 18px;font-size:13.5px;outline:none;background:#fff}
+        .search-inner input::placeholder{color:#bbb}
+        .search-inner button{background:#1a1a1a;color:#fff;border:none;padding:0 22px;font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:1px}
+        .search-inner button:hover{background:#9b7f5a}
+
+        .hd-actions{display:flex;gap:2px;margin-left:auto}
+        .hd-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;font-size:10.5px;color:#666;background:none;border:none;cursor:pointer;letter-spacing:.5px;transition:color .2s}
+        .hd-btn:hover{color:#9b7f5a}
+        .hd-ico{font-size:19px;line-height:1}
+        .hd-btn.active-page{color:#1a1a1a;font-weight:700}
+
+        .gnb{background:#fff;border-bottom:1.5px solid #1a1a1a}
+        .gnb-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex}
+        .gnb a{display:flex;align-items:center;height:44px;padding:0 22px;font-size:13px;font-weight:700;color:#444;letter-spacing:.8px;border-bottom:2.5px solid transparent;transition:all .2s}
+        .gnb a:hover{color:#1a1a1a;border-bottom-color:#1a1a1a}
+
+        /* 페이지 본문 */
+        .page-wrap{max-width:1000px;margin:48px auto;padding:0 32px}
+
+        .page-hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:1.5px solid #1a1a1a}
+        .page-title{font-size:22px;font-weight:900;letter-spacing:-1px}
+        .page-title span{font-size:12px;font-weight:400;color:#aaa;letter-spacing:2px;margin-left:10px}
+        .btn-row{display:flex;gap:8px}
+        .btn-sm{padding:7px 16px;font-size:12px;font-weight:700;border:1.5px solid #ccc;background:#fff;color:#666;cursor:pointer;letter-spacing:.5px;transition:all .2s;border-radius:0}
+        .btn-sm:hover{border-color:#1a1a1a;color:#1a1a1a}
+
+        /* 테이블 */
+        .cart-table{width:100%;border-collapse:collapse}
+        .cart-table th{background:#faf9f7;border-bottom:1px solid #e2e0db;padding:13px 14px;font-size:12px;font-weight:700;color:#888;letter-spacing:1px;text-align:center}
+        .cart-table td{padding:20px 14px;border-bottom:1px solid #f2f2f0;vertical-align:middle;text-align:center}
+        .cart-item.sold-out{opacity:.5;background:#faf9f7}
+
+        .item-info-cell{display:flex;align-items:center;text-align:left}
+        .item-img{width:76px;height:76px;object-fit:cover;background:#f5f3ef;border:1px solid #e2e0db;margin-right:18px;flex-shrink:0}
+        .item-name{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:5px}
+        .item-name a:hover{text-decoration:underline}
+        .sold-out-badge{color:#c0392b;font-size:11px;font-weight:700;margin-left:6px}
+        .item-unit-price{font-size:12.5px;color:#888;margin-bottom:3px}
+        .item-stock{font-size:11.5px;color:#bbb}
+
+        .qty-input{width:52px;padding:7px 0;text-align:center;border:1.5px solid #ddd;font-size:13px;outline:none;transition:border .2s}
+        .qty-input:focus{border-color:#1a1a1a}
+
+        .item-total{font-size:15px;font-weight:900;color:#1a1a1a}
+        .btn-del{padding:6px 14px;font-size:11px;font-weight:700;border:1.5px solid #ddd;background:#fff;color:#999;cursor:pointer;transition:all .2s}
+        .btn-del:hover{border-color:#c0392b;color:#c0392b}
+
+        /* 요약 */
+        .summary-box{background:#fff;border:1px solid #e2e0db;margin-top:32px;padding:28px 32px}
+        .summary-row{display:flex;justify-content:space-between;font-size:14px;color:#666;padding:8px 0;border-bottom:1px solid #f5f5f3}
+        .summary-row:last-of-type{border-bottom:none}
+        .summary-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:20px;padding-top:20px;border-top:1.5px solid #1a1a1a}
+        .summary-total-label{font-size:14px;font-weight:700;letter-spacing:1px}
+        .summary-total-price{font-size:24px;font-weight:900;color:#1a1a1a;letter-spacing:-1px}
+
+        .order-btn-wrap{text-align:center;margin-top:32px}
+        .btn-order{display:inline-block;width:260px;padding:16px 0;background:#1a1a1a;color:#fff;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;border:none;transition:background .2s}
+        .btn-order:hover{background:#9b7f5a}
+
+        .empty-cart{text-align:center;padding:100px 0;color:#bbb}
+        .empty-cart .empty-ico{font-size:48px;margin-bottom:20px}
+        .empty-cart p{font-size:14px;letter-spacing:.5px;margin-bottom:28px}
+        .btn-continue{display:inline-block;padding:13px 36px;background:#1a1a1a;color:#fff;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;border:none}
+        .btn-continue:hover{background:#9b7f5a}
+
+        input[type="checkbox"]{width:16px;height:16px;cursor:pointer;accent-color:#1a1a1a}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <a href="/admin">관리자</a><span class="t-sep">|</span>
+        <% if (locals.user) { %>
+            <span class="t-hi"><%= user.username %></span>님 안녕하세요<span class="t-sep">|</span>
+            <a href="/logout">로그아웃</a>
+        <% } else { %>
+            <a href="/login">로그인</a><span class="t-sep">|</span>
+            <a href="/signup">회원가입</a>
+        <% } %>
+        <span class="t-sep">|</span>
+        <a href="/cs">고객센터</a>
+    </div>
+</div>
+
+<div class="header">
+    <div class="header-inner">
+        <div class="logo" onclick="location.href='/'">
+            <span class="logo-text">모아서</span>
+            <span class="logo-sub">premium market</span>
+        </div>
+        <div class="search-outer">
+            <div class="search-inner">
+                <input type="text" placeholder="찾고 싶은 상품을 입력하세요">
+                <button>SEARCH</button>
+            </div>
+        </div>
+        <div class="hd-actions">
+            <button class="hd-btn" onclick="alert('마이페이지는 준비 중입니다! 😊')">
+                <span class="hd-ico">👤</span>MY PAGE
+            </button>
+            <button class="hd-btn" onclick="location.href='/my/orders'">
+                <span class="hd-ico">📜</span>ORDER
+            </button>
+            <button class="hd-btn active-page" onclick="location.href='/cart'">
+                <span class="hd-ico">🛒</span>CART
+            </button>
+        </div>
+    </div>
+</div>
+
+<nav class="gnb">
+    <div class="gnb-inner">
+        <a href="/category/수산물">수산물</a>
+        <a href="/category/농산물">농산물</a>
+        <a href="/category/의류">의류</a>
+    </div>
+</nav>
+
+<div class="page-wrap">
+    <div class="page-hd">
+        <div class="page-title">장바구니 <span>CART</span></div>
+        <div class="btn-row">
+            <button class="btn-sm" onclick="deleteSelected()">선택 삭제</button>
+            <button class="btn-sm" onclick="clearCart()">전체 비우기</button>
+        </div>
+    </div>
+
+    <% if (cartItems.length > 0) { %>
+        <form id="mainCartForm" action="/cart/delete-selected" method="POST">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px">선택</th>
+                        <th style="text-align:left">상품정보</th>
+                        <th style="width:110px">수량</th>
+                        <th style="width:140px">주문금액</th>
+                        <th style="width:90px">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                        let totalAmount = 0;
+                        let totalShipping = 0;
+                    %>
+                    <% cartItems.forEach(item => {
+                        const isSoldOut = item.stock <= 0;
+                        totalAmount += (item.price * item.quantity);
+                        totalShipping = Math.max(totalShipping, item.shipping_fee);
+                    %>
+                    <tr class="cart-item <%= isSoldOut ? 'sold-out' : '' %>">
+                        <td>
+                            <input type="checkbox" name="selected_items" value="<%= item.cart_id %>" <%= isSoldOut ? 'disabled' : 'checked' %>>
+                        </td>
+                        <td class="item-info-cell">
+                            <img src="<%= item.image_url %>" class="item-img" onerror="this.src='/images/default.jpg'">
+                            <div>
+                                <div class="item-name">
+                                    <a href="/product/<%= item.product_id %>"><%= item.name %></a>
+                                    <% if(isSoldOut) { %><span class="sold-out-badge">[품절]</span><% } %>
+                                </div>
+                                <div class="item-unit-price"><%= item.price.toLocaleString() %>원</div>
+                                <div class="item-stock">재고 <%= item.stock %>개 남음</div>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" class="qty-input"
+                                   value="<%= item.quantity %>" min="1"
+                                   onchange="updateQuantity('<%= item.cart_id %>', this.value, '<%= item.stock %>')"
+                                   <%= isSoldOut ? 'disabled' : '' %>>
+                        </td>
+                        <td class="item-total"><%= (item.price * item.quantity).toLocaleString() %>원</td>
+                        <td>
+                            <button type="button" class="btn-del" onclick="deleteItem('<%= item.cart_id %>')">삭제</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </form>
+
+        <div class="summary-box">
+            <div class="summary-row">
+                <span>상품 합계</span>
+                <span><%= totalAmount.toLocaleString() %>원</span>
+            </div>
+            <div class="summary-row">
+                <span>배송비</span>
+                <span><%= totalShipping > 0 ? totalShipping.toLocaleString()+'원' : '무료' %></span>
+            </div>
+            <div class="summary-total">
+                <span class="summary-total-label">최종 결제 금액</span>
+                <span class="summary-total-price"><%= (totalAmount + totalShipping).toLocaleString() %>원</span>
+            </div>
+        </div>
+
+        <div class="order-btn-wrap">
+            <button class="btn-order" onclick="location.href='/checkout'">주문하기 →</button>
+        </div>
+
+    <% } else { %>
+        <div class="empty-cart">
+            <div class="empty-ico">🛒</div>
+            <p>장바구니에 담긴 상품이 없습니다</p>
+            <button class="btn-continue" onclick="location.href='/'">쇼핑 계속하기</button>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    function updateQuantity(cartId, qty, stock) {
+        if (parseInt(qty) > parseInt(stock)) {
+            alert("재고가 " + stock + "개 남아있습니다.");
+            location.reload();
+            return;
+        }
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/cart/update';
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden'; idInput.name = 'cart_id'; idInput.value = cartId;
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'hidden'; qtyInput.name = 'quantity'; qtyInput.value = qty;
+        form.appendChild(idInput); form.appendChild(qtyInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function deleteItem(id) {
+        if (confirm("이 상품을 삭제하시겠습니까?")) location.href = "/cart/delete/" + id;
+    }
+
+    function deleteSelected() {
+        const checked = document.querySelectorAll('input[name="selected_items"]:checked');
+        if (checked.length === 0) return alert("삭제할 상품을 선택해주세요.");
+        if (confirm("선택한 상품을 삭제하시겠습니까?")) document.getElementById('mainCartForm').submit();
+    }
+
+    function clearCart() {
+        if (confirm("장바구니를 전부 비우시겠습니까?")) location.href = "/cart/clear";
+    }
+</script>
+</body>
+</html>

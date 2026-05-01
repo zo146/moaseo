@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 - 모아서 프리미엄 마켓</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 로그인 페이지 전용 간단한 정렬 스타일 */
+        body { 
+            display: flex; 
+            align-items: center; 
+            min-height: 100vh; 
+            background: #f8f8f6; 
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-logo .text {
+            font-size: 32px; font-weight: 900; letter-spacing: -1.5px; color: #1a1a1a; display: block; line-height: 1;
+        }
+        .login-logo .sub {
+            font-size: 10px; letter-spacing: 3px; color: #aaa; margin-top: 6px; text-transform: uppercase; display: block;
+        }
+        .login-links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+        }
+        .login-links a {
+            color: var(--p);
+            margin: 0 12px;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+        .login-links a:hover {
+            color: var(--acc);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sub-page-wrap" style="width: 100%; max-width: 440px;">
+        
+        <div class="login-logo">
+            <a href="/">
+                <span class="text">모아서</span>
+                <span class="sub">premium market</span>
+            </a>
+        </div>
+
+        <h1 class="sub-page-title" style="font-size: 18px; letter-spacing: 2px;">LOGIN</h1>
+        
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <input type="text" name="userid" class="form-input" placeholder="아이디" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="form-input" placeholder="비밀번호" required>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">로그인</button>
+        </form>
+        
+        <div class="login-links">
+            <a href="/signup">회원가입</a> | <a href="/">홈으로 가기</a>
+        </div>
+        
+    </div>
+
+</body>
+</html>

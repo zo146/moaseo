@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주문서 작성 - 모아서</title>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif;background:#f8f8f6;color:#1a1a1a}
+        a{text-decoration:none;color:inherit}
+
+        .topbar{background:#1a1a1a;padding:9px 0;font-size:11.5px;color:#888;letter-spacing:.3px}
+        .topbar-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:flex-end;align-items:center}
+        .topbar a{color:#888;transition:color .2s}
+        .topbar a:hover{color:#fff}
+        .t-sep{margin:0 12px;color:#3a3a3a}
+        .t-hi{color:#c8a97a;font-weight:600}
+
+        .header{background:#fff;border-bottom:1px solid #e2e0db}
+        .header-inner{max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;gap:32px}
+        .logo{display:flex;flex-direction:column;cursor:pointer;margin-right:12px;flex-shrink:0}
+        .logo-text{font-size:26px;font-weight:900;letter-spacing:-1.5px;color:#1a1a1a;line-height:1}
+        .logo-sub{font-size:9.5px;letter-spacing:3px;color:#aaa;margin-top:3px;text-transform:uppercase}
+
+        .search-outer{flex:1;max-width:520px}
+        .search-inner{display:flex;border:1.5px solid #1a1a1a;height:44px}
+        .search-inner input{flex:1;border:none;padding:0 18px;font-size:13.5px;outline:none;background:#fff}
+        .search-inner input::placeholder{color:#bbb}
+        .search-inner button{background:#1a1a1a;color:#fff;border:none;padding:0 22px;font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:1px}
+        .search-inner button:hover{background:#9b7f5a}
+
+        .hd-actions{display:flex;gap:2px;margin-left:auto}
+        .hd-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;font-size:10.5px;color:#666;background:none;border:none;cursor:pointer;letter-spacing:.5px;transition:color .2s}
+        .hd-btn:hover{color:#9b7f5a}
+        .hd-ico{font-size:19px;line-height:1}
+
+        .gnb{background:#fff;border-bottom:1.5px solid #1a1a1a}
+        .gnb-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex}
+        .gnb a{display:flex;align-items:center;height:44px;padding:0 22px;font-size:13px;font-weight:700;color:#444;letter-spacing:.8px;border-bottom:2.5px solid transparent;transition:all .2s}
+        .gnb a:hover{color:#1a1a1a;border-bottom-color:#1a1a1a}
+
+        .progress-bar{background:#fff;border-bottom:1px solid #e2e0db;padding:16px 0}
+        .progress-inner{max-width:900px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:center}
+        .progress-step{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#bbb;letter-spacing:1px;cursor:pointer}
+        .progress-step.on{color:#1a1a1a}
+        .progress-step .step-num{width:24px;height:24px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+        .progress-step.on .step-num{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+        .progress-step.done .step-num{border-color:#9b7f5a;background:#9b7f5a;color:#fff}
+        .progress-step.done{color:#9b7f5a}
+        .progress-arrow{margin:0 16px;color:#ddd;font-size:12px}
+
+        .page-wrap{max-width:900px;margin:40px auto;padding:0 32px 80px}
+        .page-hd{margin-bottom:32px;padding-bottom:16px;border-bottom:1.5px solid #1a1a1a;display:flex;align-items:flex-end;justify-content:space-between}
+        .page-title{font-size:22px;font-weight:900;letter-spacing:-1px}
+        .page-title span{font-size:12px;font-weight:400;color:#aaa;letter-spacing:2px;margin-left:10px}
+        .btn-back{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#888;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#fff;padding:7px 16px;letter-spacing:.5px;transition:all .2s}
+        .btn-back:hover{border-color:#1a1a1a;color:#1a1a1a}
+
+        .checkout-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+
+        .sec-card{background:#fff;border:1px solid #e2e0db;padding:28px 28px 24px}
+        .sec-card+.sec-card{margin-top:16px}
+        .sec-label{font-size:11px;font-weight:700;letter-spacing:2px;color:#888;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f0ede8;display:flex;align-items:center;justify-content:space-between}
+        .sec-label-note{font-size:11px;color:#bbb;font-weight:400;letter-spacing:0}
+
+        /* 체크박스 포함 주문 상품 */
+        .order-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f5f5f3;transition:opacity .2s}
+        .order-item:last-child{border-bottom:none}
+        .order-item.excluded{opacity:.35}
+        .order-cb{width:16px;height:16px;cursor:pointer;accent-color:#1a1a1a;flex-shrink:0}
+        .order-img{width:62px;height:62px;object-fit:cover;border:1px solid #e2e0db;flex-shrink:0}
+        .order-detail{flex:1}
+        .order-name{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+        .order-meta{font-size:12px;color:#999}
+        .order-price{font-size:14px;font-weight:900;white-space:nowrap}
+        .excluded-label{font-size:10.5px;color:#c0392b;font-weight:700;margin-left:6px}
+
+        .form-group{margin-bottom:18px}
+        .form-group label{display:block;font-size:12px;font-weight:700;color:#555;letter-spacing:.5px;margin-bottom:7px}
+        .form-group input{width:100%;height:42px;padding:0 14px;border:1.5px solid #ddd;font-size:13.5px;outline:none;transition:border .2s;background:#fff;font-family:inherit}
+        .form-group input:focus{border-color:#1a1a1a}
+        .addr-row{display:flex;gap:8px;margin-bottom:8px}
+        .addr-row input{flex:1}
+        .btn-addr{height:42px;padding:0 16px;background:#1a1a1a;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;transition:background .2s}
+        .btn-addr:hover{background:#9b7f5a}
+
+        .summary-card{background:#fff;border:1px solid #e2e0db;padding:28px;position:sticky;top:20px}
+        .s-label{font-size:11px;font-weight:700;letter-spacing:2px;color:#888;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f0ede8}
+        .s-rows{margin-bottom:4px}
+        .s-row{display:flex;justify-content:space-between;font-size:13px;color:#666;padding:8px 0;border-bottom:1px solid #f5f5f3}
+        .s-row:last-child{border-bottom:none}
+        .s-row.excluded-row{text-decoration:line-through;color:#ccc}
+        .s-total{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0 0;border-top:1.5px solid #1a1a1a;margin-top:8px}
+        .s-total-label{font-size:13px;font-weight:700;letter-spacing:.5px}
+        .s-total-price{font-size:22px;font-weight:900;letter-spacing:-1px}
+        .btn-pay{width:100%;padding:17px 0;background:#1a1a1a;color:#fff;border:none;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;margin-top:20px;transition:background .2s}
+        .btn-pay:hover{background:#9b7f5a}
+        .btn-pay:disabled{background:#ccc;cursor:not-allowed}
+        .pay-note{font-size:11px;color:#bbb;text-align:center;margin-top:12px;letter-spacing:.3px}
+        .none-selected{font-size:12px;color:#c0392b;text-align:center;margin-top:12px;display:none}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <a href="/admin">관리자</a><span class="t-sep">|</span>
+        <% if (locals.user) { %>
+            <span class="t-hi"><%= user.username %></span>님 안녕하세요<span class="t-sep">|</span>
+            <a href="/logout">로그아웃</a>
+        <% } else { %>
+            <a href="/login">로그인</a><span class="t-sep">|</span>
+            <a href="/signup">회원가입</a>
+        <% } %>
+        <span class="t-sep">|</span>
+        <a href="/cs">고객센터</a>
+    </div>
+</div>
+
+<div class="header">
+    <div class="header-inner">
+        <div class="logo" onclick="location.href='/'">
+            <span class="logo-text">모아서</span>
+            <span class="logo-sub">premium market</span>
+        </div>
+        <div class="search-outer">
+            <div class="search-inner">
+                <input type="text" placeholder="찾고 싶은 상품을 입력하세요">
+                <button>SEARCH</button>
+            </div>
+        </div>
+        <div class="hd-actions">
+            <button class="hd-btn" onclick="alert('마이페이지는 준비 중입니다! 😊')">
+                <span class="hd-ico">👤</span>MY PAGE
+            </button>
+            <button class="hd-btn" onclick="location.href='/my/orders'">
+                <span class="hd-ico">📜</span>ORDER
+            </button>
+            <button class="hd-btn" onclick="location.href='/cart'">
+                <span class="hd-ico">🛒</span>CART
+            </button>
+        </div>
+    </div>
+</div>
+
+<nav class="gnb">
+    <div class="gnb-inner">
+        <a href="/category/수산물">수산물</a>
+        <a href="/category/농산물">농산물</a>
+        <a href="/category/의류">의류</a>
+    </div>
+</nav>
+
+<div class="progress-bar">
+    <div class="progress-inner">
+        <div class="progress-step done" onclick="location.href='/cart'" style="cursor:pointer">
+            <div class="step-num">✓</div>장바구니
+        </div>
+        <span class="progress-arrow">▶</span>
+        <div class="progress-step on">
+            <div class="step-num">2</div>주문서 작성
+        </div>
+        <span class="progress-arrow">▶</span>
+        <div class="progress-step">
+            <div class="step-num">3</div>결제 완료
+        </div>
+    </div>
+</div>
+
+<div class="page-wrap">
+    <div class="page-hd">
+        <div class="page-title">주문서 작성 <span>CHECKOUT</span></div>
+        <button class="btn-back" onclick="location.href='/cart'">← 장바구니로 돌아가기</button>
+    </div>
+
+    <%
+        let totalAmount = 0;
+        let maxShipping = 0;
+        orderItems.forEach(item => {
+            totalAmount += (item.price * item.quantity);
+            maxShipping = Math.max(maxShipping, item.shipping_fee);
+        });
+    %>
+
+    <div class="checkout-grid">
+        <div>
+            <!-- 주문 상품 -->
+            <div class="sec-card">
+                <div class="sec-label">
+                    주문 상품 확인
+                    <span class="sec-label-note">체크 해제 시 결제에서 제외됩니다</span>
+                </div>
+                <% orderItems.forEach((item, idx) => { %>
+                    <div class="order-item" id="item-row-<%= idx %>">
+                        <input type="checkbox" class="order-cb"
+                               id="cb-<%= idx %>"
+                               data-price="<%= item.price * item.quantity %>"
+                               data-shipping="<%= item.shipping_fee %>"
+                               data-name="<%= item.name %>"
+                               checked
+                               onchange="recalc()">
+                        <img src="<%= item.image_url %>" class="order-img" onerror="this.src='/images/default.jpg'">
+                        <div class="order-detail">
+                            <div class="order-name">
+                                <%= item.name %>
+                                <span class="excluded-label" id="ex-label-<%= idx %>" style="display:none">제외됨</span>
+                            </div>
+                            <div class="order-meta"><%= item.price.toLocaleString() %>원 × <%= item.quantity %>개</div>
+                        </div>
+                        <div class="order-price" id="item-price-<%= idx %>"><%= (item.price * item.quantity).toLocaleString() %>원</div>
+                    </div>
+                <% }) %>
+            </div>
+
+            <!-- 배송 정보 -->
+            <div class="sec-card">
+                <div class="sec-label">배송 정보</div>
+                <div class="form-group">
+                    <label>받으시는 분</label>
+                    <input type="text" id="receiver_name" value="<%= user.username %>">
+                </div>
+                <div class="form-group">
+                    <label>연락처</label>
+                    <input type="text" id="receiver_phone" placeholder="010-0000-0000">
+                </div>
+                <div class="form-group">
+                    <label>배송지 주소</label>
+                    <div class="addr-row">
+                        <input type="text" id="address" placeholder="주소 찾기 버튼을 눌러주세요" readonly>
+                        <button type="button" class="btn-addr" onclick="execPostcode()">주소 찾기</button>
+                    </div>
+                    <input type="text" id="address_detail" placeholder="상세 주소를 입력해주세요">
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제 요약 -->
+        <div class="summary-card">
+            <div class="s-label">결제 금액</div>
+            <div class="s-rows" id="summaryRows">
+                <% orderItems.forEach((item, idx) => { %>
+                    <div class="s-row" id="s-row-<%= idx %>">
+                        <span style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= item.name %></span>
+                        <span><%= (item.price * item.quantity).toLocaleString() %>원</span>
+                    </div>
+                <% }) %>
+                <div class="s-row">
+                    <span>배송비</span>
+                    <span id="shippingDisplay"><%= maxShipping > 0 ? maxShipping.toLocaleString()+'원' : '무료' %></span>
+                </div>
+            </div>
+            <div class="s-total">
+                <span class="s-total-label">최종 결제</span>
+                <span class="s-total-price" id="finalPrice"><%= (totalAmount + maxShipping).toLocaleString() %>원</span>
+            </div>
+            <button type="button" class="btn-pay" id="payment-button">결제하기 →</button>
+            <div class="none-selected" id="noneMsg">결제할 상품을 선택해주세요</div>
+            <p class="pay-note">버튼 클릭 시 카드 선택창이 나타납니다</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ── 상품 데이터 ── */
+    const items = [
+        <% orderItems.forEach((item, idx) => { %>
+            { idx: <%= idx %>, price: <%= item.price * item.quantity %>, shipping: <%= item.shipping_fee %> },
+        <% }) %>
+    ];
+
+    function recalc() {
+        let total = 0;
+        let maxShip = 0;
+        let anyChecked = false;
+
+        items.forEach(item => {
+            const cb = document.getElementById('cb-' + item.idx);
+            const row = document.getElementById('item-row-' + item.idx);
+            const sRow = document.getElementById('s-row-' + item.idx);
+            const exLabel = document.getElementById('ex-label-' + item.idx);
+
+            if(cb.checked) {
+                total += item.price;
+                maxShip = Math.max(maxShip, item.shipping);
+                row.classList.remove('excluded');
+                sRow.classList.remove('excluded-row');
+                exLabel.style.display = 'none';
+                anyChecked = true;
+            } else {
+                row.classList.add('excluded');
+                sRow.classList.add('excluded-row');
+                exLabel.style.display = 'inline';
+            }
+        });
+
+        const finalTotal = total + maxShip;
+        document.getElementById('finalPrice').textContent = finalTotal.toLocaleString() + '원';
+        document.getElementById('shippingDisplay').textContent = maxShip > 0 ? maxShip.toLocaleString() + '원' : '무료';
+
+        const payBtn = document.getElementById('payment-button');
+        const noneMsg = document.getElementById('noneMsg');
+        if(anyChecked) {
+            payBtn.disabled = false;
+            noneMsg.style.display = 'none';
+        } else {
+            payBtn.disabled = true;
+            noneMsg.style.display = 'block';
+        }
+    }
+
+    /* ── 토스 결제 ── */
+    const clientKey = "test_ck_GjLJoQ1aVZPbxW4LjRj18w6KYe2R";
+    const tossPayments = TossPayments(clientKey);
+
+    document.getElementById("payment-button").addEventListener("click", function() {
+        const name = document.getElementById('receiver_name').value;
+        const addr = document.getElementById('address').value;
+        if(!name || !addr) { alert('배송 정보를 모두 입력해주세요.'); return; }
+
+        /* 선택된 상품만 계산 */
+        let finalAmount = 0;
+        let maxShip = 0;
+        let firstItemName = '';
+        let checkedCount = 0;
+
+        items.forEach(item => {
+            const cb = document.getElementById('cb-' + item.idx);
+            if(cb.checked) {
+                finalAmount += item.price;
+                maxShip = Math.max(maxShip, item.shipping);
+                if(checkedCount === 0) firstItemName = cb.dataset ? cb.getAttribute('data-name') : '';
+                checkedCount++;
+            }
+        });
+
+        finalAmount += maxShip;
+        const orderName = checkedCount > 1
+            ? document.querySelector('.order-cb:checked + img + .order-detail .order-name').textContent.trim() + ' 외 ' + (checkedCount-1) + '건'
+            : document.querySelector('.order-cb:checked + img + .order-detail .order-name').textContent.trim();
+
+        tossPayments.requestPayment('카드', {
+            amount: finalAmount,
+            orderId: "order_" + new Date().getTime(),
+            orderName: orderName,
+            customerName: "<%= user.username %>",
+            successUrl: window.location.origin + "/order/success",
+            failUrl: window.location.origin + "/order/fail",
+        }).catch(function(error) {
+            if (error.code === 'USER_CANCEL') { alert('결제를 취소하셨습니다.'); }
+            else { alert(error.message); }
+        });
+    });
+
+    function execPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                document.getElementById("address").value = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                document.getElementById("address_detail").focus();
+            }
+        }).open();
+    }
+</script>
+</body>
+</html>

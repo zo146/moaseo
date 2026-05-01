@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title><%= product.name %> - 모아서 프리미엄 마켓</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 상세 페이지 전용 레이아웃 스타일 */
+        .detail-container { 
+            max-width: 1000px; 
+            margin: 60px auto; 
+            background: #fff; 
+            display: flex; 
+            padding: 50px; 
+            border: 1px solid var(--line);
+            gap: 50px; 
+        }
+        
+        /* 왼쪽 상품 이미지 */
+        .product-img-box { flex: 1; display: flex; align-items: center; justify-content: center; background: #faf9f7; border: 1px solid var(--line); }
+        .product-img { width: 100%; max-height: 500px; object-fit: contain; }
+        
+        /* 오른쪽 상품 정보 */
+        .info-box { flex: 1; display: flex; flex-direction: column; }
+
+        .category-tag { 
+            display: inline-block; 
+            color: #888; 
+            font-size: 12px; 
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 15px; 
+        }
+        .product-name { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; color: var(--p); line-height: 1.3; }
+        .price { 
+            font-size: 32px; 
+            color: var(--p); 
+            font-weight: 900; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid var(--p); 
+            padding-bottom: 20px; 
+        }
+        
+        .detail-row { display: flex; margin-bottom: 16px; font-size: 14px; align-items: center; }
+        .detail-row .label { width: 100px; color: #666; font-weight: 700; letter-spacing: 0.5px; }
+        .detail-row .value { color: var(--p); }
+
+        /* 주문 입력 영역 */
+        .order-box { margin-top: auto; padding-top: 30px; border-top: 1px solid var(--line); }
+        .quantity-select { display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; }
+        .quantity-select .label { color: var(--p); font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
+        .quantity-input { width: 80px; padding: 10px; border: 1px solid var(--line); outline: none; font-size: 15px; text-align: center; }
+        .quantity-input:focus { border-color: var(--p); }
+
+        /* 하단 버튼 그룹 */
+        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        .back-link { display: block; text-align: center; color: #888; text-decoration: none; font-size: 13px; font-weight: 700; transition: color 0.2s; }
+        .back-link:hover { color: var(--p); }
+    </style>
+</head>
+<body>
+
+<div style="background:#fff; padding:20px; text-align:center; border-bottom:1px solid var(--line);">
+    <a href="/" style="font-size:24px; font-weight:900; color:#1a1a1a; letter-spacing:-1.5px; line-height:1; display:block;">모아서</a>
+    <span style="font-size:9.5px; letter-spacing:3px; color:#aaa; text-transform:uppercase;">premium market</span>
+</div>
+
+    <div class="detail-container">
+        <div class="product-img-box">
+            <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-img" onerror="this.src='/images/default.jpg'">
+        </div>
+
+        <div class="info-box">
+            <div class="category-tag"><%= product.category %> / BEST ITEM</div>
+            <h1 class="product-name"><%= product.name %></h1>
+            <div class="price"><%= product.price.toLocaleString() %>원</div>
+
+            <div class="detail-row">
+                <span class="label">원산지</span>
+                <span class="value"><%= product.origin || '정보 없음' %></span>
+            </div>
+
+            <div class="detail-row">
+                <span class="label">배송료</span>
+                <span class="value"><%= product.shipping_fee.toLocaleString() %>원</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="label">남은수량</span>
+                <span class="value"><%= product.stock %>개</span>
+            </div>
+
+            <form action="/cart/add" method="POST" class="order-box">
+                <input type="hidden" name="product_id" value="<%= product.id %>">
+                
+                <div class="quantity-select">
+                    <span class="label">주문수량</span>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" name="quantity" class="quantity-input" value="1" min="1" max="<%= product.stock %>">
+                        <span style="margin-left: 8px; font-size: 14px; color: #666;">개</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-outline" style="flex: 1;">장바구니 담기</button>
+                    <button type="button" class="btn-primary" style="flex: 1;" onclick="directOrder('<%= product.id %>')">바로 구매하기</button>
+                </div>
+            </form>
+
+            <a href="javascript:history.back()" class="back-link">← 리스트로 돌아가기</a>
+        </div>
+    </div>
+
+<script>
+function directOrder(productId) {
+    const qty = document.querySelector('input[name="quantity"]').value;
+    
+    fetch('/cart/add/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, quantity: qty })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            location.href = '/checkout'; 
+        } else {
+            alert(data.message || '로그인이 필요한 서비스입니다.');
+            if(data.redirect) location.href = data.redirect;
+        }
+    });
+}
+</script>
+
+</body>
+</html>S
