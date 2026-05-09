@@ -27,7 +27,6 @@
         .logo-text{font-size:26px;font-weight:900;letter-spacing:-1.5px;color:#1a1a1a;line-height:1}
         .logo-sub{font-size:9.5px;letter-spacing:3px;color:#aaa;margin-top:3px;text-transform:uppercase}
 
-        /* ✅ 검색창 - position:relative 추가 */
         .search-outer{flex:1;max-width:520px;position:relative}
         .search-inner{display:flex;border:1.5px solid #1a1a1a;height:44px}
         .search-inner input{flex:1;border:none;padding:0 18px;font-size:13.5px;outline:none;background:#fff;letter-spacing:.2px}
@@ -35,7 +34,6 @@
         .search-inner button{background:#1a1a1a;color:#fff;border:none;padding:0 22px;font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:background .2s}
         .search-inner button:hover{background:var(--acc)}
 
-        /* ✅ 검색 드롭다운 */
         .search-dropdown{position:absolute;top:44px;left:0;width:100%;background:#fff;border:1.5px solid #1a1a1a;border-top:none;z-index:9999;display:none}
         .search-dropdown.show{display:block}
         .dropdown-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #f0ede8}
@@ -82,12 +80,12 @@
         .slide-img-col{width:55%;position:relative;overflow:hidden;background:#f0ece4}
         .slide-img-col img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
         .slide:hover .slide-img-col img{transform:scale(1.03)}
-        .slide-info-col{width:45%;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;gap:16px;background:#fff}
-        .slide-rank{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--acc);border-bottom:1px solid var(--acc);padding-bottom:6px;display:inline-block}
+        .slide-info-col{width:45%;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;gap:12px;background:#fff}
+        .slide-rank{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--acc);border-bottom:1px solid var(--acc);padding-bottom:6px;display:inline-block;margin-bottom:4px}
         .slide-name{font-size:22px;font-weight:900;color:#1a1a1a;line-height:1.35;letter-spacing:-.5px}
         .slide-price{font-size:26px;font-weight:900;color:#1a1a1a;letter-spacing:-1px}
         .slide-price em{font-size:14px;font-weight:400;color:#888;font-style:normal;margin-left:4px}
-        .slide-cta{display:inline-flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;padding:13px 28px;font-size:12.5px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:background .2s;width:fit-content}
+        .slide-cta{display:inline-flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;padding:13px 28px;font-size:12.5px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:background .2s;width:fit-content;margin-top:4px}
         .slide-cta:hover{background:var(--acc)}
         .slider-dots{position:absolute;bottom:16px;right:20px;display:flex;gap:6px}
         .dot{width:6px;height:6px;border-radius:50%;background:#ccc;cursor:pointer;transition:all .25s}
@@ -109,10 +107,10 @@
         .m-card:hover{border-color:var(--acc);box-shadow:0 4px 16px rgba(0,0,0,.08)}
         .m-img{width:100%;height:76px;object-fit:cover;display:block;background:#f5f3ef}
         .m-body{padding:6px 7px 8px}
-        .m-name{font-size:11px;color:#333;line-height:1.4;height:30px;overflow:hidden;margin-bottom:4px}
+        .m-name{font-size:11px;color:#333;line-height:1.4;height:30px;overflow:hidden;margin-bottom:2px}
         .m-price{font-size:12px;font-weight:900;color:#1a1a1a}
         .m-cat-icon{position:absolute;bottom:8px;right:7px;font-size:13px;opacity:.7}
-        .m-empty-card{border:1px solid #f0ede8;background:#faf9f7;display:flex;align-items:center;justify-content:center;height:115px}
+        .m-empty-card{border:1px solid #f0ede8;background:#faf9f7;display:flex;align-items:center;justify-content:center;height:128px}
         .m-empty-txt{font-size:10px;color:#ccc;letter-spacing:1px}
 
         .half-float{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.12)}
@@ -133,6 +131,10 @@
         .hf-label.on{background:#1a1a1a;color:#fff}
         .hf-label-tip{position:absolute;right:52px;top:50%;transform:translateY(-50%);background:#1a1a1a;color:#fff;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;letter-spacing:.5px}
         .hf-label:hover .hf-label-tip{opacity:1}
+
+        .star-rating {display:flex;align-items:center;margin:4px 0}
+        .stars {color:#FFD700;font-size:13px;letter-spacing:-1px}
+        .rating-value {color:#666;font-size:12px;font-weight:700;margin-left:4px}
     </style>
 </head>
 
@@ -160,7 +162,6 @@
             <span class="logo-sub">premium market</span>
         </div>
 
-        <!-- ✅ 검색창 (검색기록 드롭다운 포함) -->
         <div class="search-outer" id="searchOuter">
             <div class="search-inner">
                 <input type="text" id="searchInput"
@@ -270,8 +271,12 @@
                                 <img src="<%= item.image_url %>" alt="<%= item.name %>" onerror="this.src='/images/default.jpg'">
                             </div>
                             <div class="slide-info-col">
-                                <span class="slide-rank">BEST 0<%= i+1 %></span>
+                                <div><span class="slide-rank">BEST 0<%= i+1 %></span></div>
                                 <div class="slide-name"><%= item.name %></div>
+                                <div class="star-rating">
+                                    <span class="stars"><%= '★'.repeat(Math.round(item.rating || 0)) %><%= '☆'.repeat(5 - Math.round(item.rating || 0)) %></span>
+                                    <span class="rating-value"><%= item.rating ? Number(item.rating).toFixed(1) : '0.0' %></span>
+                                </div>
                                 <div class="slide-price"><%= item.price.toLocaleString() %><em>원</em></div>
                                 <a href="/product/<%= item.id %>"><div class="slide-cta">상품 보러가기 &nbsp;→</div></a>
                             </div>
@@ -312,6 +317,10 @@
                                             <img src="<%= monthlyData[m][i].image_url %>" class="m-img" alt="<%= monthlyData[m][i].name %>" onerror="this.src='/images/default.jpg'">
                                             <div class="m-body">
                                                 <div class="m-name"><%= monthlyData[m][i].name %></div>
+                                                <div class="star-rating">
+                                                    <span class="stars"><%= '★'.repeat(Math.round(monthlyData[m][i].rating || 0)) %><%= '☆'.repeat(5 - Math.round(monthlyData[m][i].rating || 0)) %></span>
+                                                    <span class="rating-value"><%= monthlyData[m][i].rating ? Number(monthlyData[m][i].rating).toFixed(1) : '0.0' %></span>
+                                                </div>
                                                 <div class="m-price"><%= monthlyData[m][i].price.toLocaleString() %>원</div>
                                             </div>
                                             <span class="m-cat-icon"><%= catIcon %></span>
@@ -339,6 +348,10 @@
                                             <img src="<%= monthlyData[m][i].image_url %>" class="m-img" alt="<%= monthlyData[m][i].name %>" onerror="this.src='/images/default.jpg'">
                                             <div class="m-body">
                                                 <div class="m-name"><%= monthlyData[m][i].name %></div>
+                                                <div class="star-rating">
+                                                    <span class="stars"><%= '★'.repeat(Math.round(monthlyData[m][i].rating || 0)) %><%= '☆'.repeat(5 - Math.round(monthlyData[m][i].rating || 0)) %></span>
+                                                    <span class="rating-value"><%= monthlyData[m][i].rating ? Number(monthlyData[m][i].rating).toFixed(1) : '0.0' %></span>
+                                                </div>
                                                 <div class="m-price"><%= monthlyData[m][i].price.toLocaleString() %>원</div>
                                             </div>
                                             <span class="m-cat-icon"><%= catIcon %></span>
@@ -361,7 +374,6 @@
 </div>
 
 <script>
-    /* ── 슬라이더 ── */
     const track = document.getElementById('track');
     const slides = track.querySelectorAll('.slide');
     const dotsWrap = document.getElementById('dots');
@@ -389,14 +401,12 @@
     document.getElementById('sliderWrap').onmouseleave = startAuto;
     startAuto();
 
-    /* ── 햄버거 토글 ── */
     let groupOpen = false;
     function toggleHalfGroup() {
         groupOpen = !groupOpen;
         document.getElementById('hfGroup').classList.toggle('open', groupOpen);
     }
 
-    /* ── 월별 ── */
     let activePage = 1;
     let activeMonth = null;
 
@@ -451,7 +461,6 @@
     renderTabs(initPage);
     selectMonth(curMonth);
 
-    /* ── 검색 기능 ── */
     function getHistory() {
         return JSON.parse(localStorage.getItem('searchHistory') || '[]');
     }

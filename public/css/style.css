@@ -1,4 +1,3 @@
-/* 기본 초기화 및 폰트 (메인 화면과 동일하게 맞춤) */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { 
     font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif; 
@@ -8,7 +7,6 @@ body {
 a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
 
-/* 메인 화면에서 추출한 공통 색상 변수 */
 :root {
     --p: #1a1a1a;
     --acc: #9b7f5a;
@@ -19,18 +17,15 @@ body.theme-수산물 { --acc: #2a6496; --acc-l: #eaf3fa; --line: #d0e4f0; }
 body.theme-농산물 { --acc: #3a6b3a; --acc-l: #eaf4ea; --line: #cde3cd; }
 body.theme-의류 { --acc: #5a4a7a; --acc-l: #f0edf8; --line: #ddd6ee; }
 
-/* ---------------------------------------------------
-   서브 페이지 공통 레이아웃 (로그인, 회원가입, 장바구니 등)
---------------------------------------------------- */
 .sub-page-wrap {
-    max-width: 600px; /* 폼이 있는 페이지는 가운데 정렬되도록 */
+    max-width: 600px;
     margin: 60px auto;
     padding: 40px;
     background: #fff;
     border: 1px solid var(--line);
 }
 .sub-page-wrap.wide {
-    max-width: 1280px; /* 장바구니, 관리자 페이지 등 넓은 화면용 */
+    max-width: 1280px;
 }
 .sub-page-title {
     font-size: 24px;
@@ -43,9 +38,6 @@ body.theme-의류 { --acc: #5a4a7a; --acc-l: #f0edf8; --line: #ddd6ee; }
     border-bottom: 2px solid var(--p);
 }
 
-/* ---------------------------------------------------
-   공통 폼 (입력창 및 라벨)
---------------------------------------------------- */
 .form-group {
     margin-bottom: 20px;
 }
@@ -71,16 +63,13 @@ body.theme-의류 { --acc: #5a4a7a; --acc-l: #f0edf8; --line: #ddd6ee; }
     border-color: var(--p);
 }
 
-/* ---------------------------------------------------
-   공통 버튼 (메인 화면의 SEARCH / CTA 버튼 스타일 차용)
---------------------------------------------------- */
 .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 52px;
-    background: var(--p); /* 블랙 */
+    background: var(--p);
     color: #fff;
     border: none;
     font-size: 14px;
@@ -90,7 +79,7 @@ body.theme-의류 { --acc: #5a4a7a; --acc-l: #f0edf8; --line: #ddd6ee; }
     transition: background 0.2s;
 }
 .btn-primary:hover {
-    background: var(--acc); /* 테마 포인트 색상으로 변경됨 */
+    background: var(--acc);
 }
 .btn-outline {
     display: inline-flex;
@@ -112,9 +101,6 @@ body.theme-의류 { --acc: #5a4a7a; --acc-l: #f0edf8; --line: #ddd6ee; }
     background: #faf9f7;
 }
 
-/* ---------------------------------------------------
-   공통 테이블 (장바구니, 주문내역, 관리자 목록)
---------------------------------------------------- */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -136,4 +122,21 @@ body.theme-의류 { --acc: #5a4a7a; --acc-l: #f0edf8; --line: #ddd6ee; }
     border-bottom: 1px solid var(--line);
     text-align: center;
     vertical-align: middle;
+}
+
+.star-rating {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+}
+.stars {
+    color: #FFD700;
+    font-size: 13px;
+    letter-spacing: -1px;
+}
+.rating-value {
+    color: #666;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 4px;
 }
