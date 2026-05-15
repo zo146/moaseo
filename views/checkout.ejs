@@ -131,7 +131,7 @@
             </div>
         </div>
         <div class="hd-actions">
-            <button class="hd-btn" onclick="alert('마이페이지는 준비 중입니다! 😊')">
+            <button class="hd-btn" onclick="location.href='/mypage'">
                 <span class="hd-ico">👤</span>MY PAGE
             </button>
             <button class="hd-btn" onclick="location.href='/my/orders'">
@@ -227,11 +227,11 @@
                 <div class="form-group">
                     <label>배송지 주소</label>
                     <div class="addr-row">
-                        <input type="text" id="address" placeholder="주소 찾기 버튼을 눌러주세요" readonly>
-                        <button type="button" class="btn-addr" onclick="execPostcode()">주소 찾기</button>
-                    </div>
-                    <input type="text" id="address_detail" placeholder="상세 주소를 입력해주세요">
+                    <input type="text" id="address" value="<%= user.address || '' %>" placeholder="주소 찾기 버튼을 눌러주세요">
+                    <button type="button" class="btn-addr" onclick="execPostcode()">주소 찾기</button>
                 </div>
+    <input type="text" id="address_detail" value="<%= user.address_detail || '' %>" placeholder="상세 주소를 입력해주세요">
+</div>
             </div>
         </div>
 

@@ -48,22 +48,20 @@
             <h1 class="product-name"><%= product.name %></h1>
             
             <div id="top-rating-container" style="margin-bottom: 20px; font-size: 14px; cursor: pointer;" onclick="window.scrollTo({top: document.querySelector('.review-container').offsetTop, behavior: 'smooth'})">
+                <% if (totalReviews > 0) { %>
+                    <span style="color: #ff9900; letter-spacing: 2px;"><%= '⭐'.repeat(Math.round(avgRating)) %></span>
+                    <strong style="color: var(--p); font-size: 16px; margin-left: 5px;"><%= avgRating %></strong>
+                    <span style="color: #888; margin-left: 5px; text-decoration: underline;"><%= totalReviews %>개의 리뷰 보기</span>
+                <% } else { %>
+                    <span style="color: #999;">작성된 리뷰가 없습니다</span>
+                <% } %>
             </div>
 
             <div class="price"><%= product.price.toLocaleString() %>원</div>
 
-            <div class="detail-row">
-                <span class="label">원산지</span>
-                <span class="value"><%= product.origin || '정보 없음' %></span>
-            </div>
-            <div class="detail-row">
-                <span class="label">배송료</span>
-                <span class="value"><%= product.shipping_fee.toLocaleString() %>원</span>
-            </div>
-            <div class="detail-row">
-                <span class="label">남은수량</span>
-                <span class="value"><%= product.stock %>개</span>
-            </div>
+            <div class="detail-row"><span class="label">원산지</span><span class="value"><%= product.origin || '정보 없음' %></span></div>
+            <div class="detail-row"><span class="label">배송료</span><span class="value"><%= product.shipping_fee.toLocaleString() %>원</span></div>
+            <div class="detail-row"><span class="label">남은수량</span><span class="value"><%= product.stock %>개</span></div>
 
             <form action="/cart/add" method="POST" class="order-box">
                 <input type="hidden" name="product_id" value="<%= product.id %>">
@@ -85,9 +83,10 @@
 
     <div class="review-container">
         <div class="review-header">
-            <h3>⭐ 고객 리뷰 (<span id="review-count">0</span>건)</h3>
-            <h2 style="font-size: 20px; color: #ff9900; margin: 0;">평균 평점: <span id="avg-rating">0.0</span> / 5.0</h2>
+            <h3>⭐ 고객 리뷰 (<%= totalReviews %>건)</h3>
+            <h2 style="font-size: 20px; color: #ff9900; margin: 0;">평균 평점: <%= avgRating %> / 5.0</h2>
         </div>
+
         <div class="review-form">
             <h4 style="margin:0 0 10px 0; color:var(--p);">리뷰 작성하기</h4>
             <select id="rating-select" style="width: 100%; padding: 10px; border: 1px solid var(--line);">
@@ -100,10 +99,31 @@
             <textarea id="review-content" placeholder="상품에 대한 솔직한 리뷰를 남겨주세요 (로그인 필요)"></textarea>
             <button id="submit-review-btn" class="btn-primary" style="margin-top:15px; width:100%;">리뷰 등록</button>
         </div>
-        <div id="review-list"></div>
+        
+        <div id="review-list">
+            <% if (reviews && reviews.length > 0) { %>
+                <% reviews.forEach(function(review) { %>
+                    <div class="review-list-item">
+    <div class="review-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span class="review-author" style="font-weight: 700; color: var(--p);">
+            <%= review.userid ? review.userid + ' 님' : '익명 사용자' %>
+        </span>
+        <span style="color: #999; font-size: 14px;">
+            <%= new Date(review.created_at).toLocaleDateString() %>
+        </span>
+    </div>
+    <div class="review-stars"><%= '⭐'.repeat(review.rating) %></div>
+    <p style="margin-top: 10px; color: #444; line-height: 1.5;"><%= review.content %></p>
+</div>
+                <% }); %>
+            <% } else { %>
+                <p style="text-align:center; color:#888; padding:30px 0;">아직 작성된 리뷰가 없습니다.</p>
+            <% } %>
+        </div>
     </div>
 
 <script>
+// 바로 구매 기능은 유지
 function directOrder(productId) {
     const qty = document.querySelector('input[name="quantity"]').value;
     fetch('/cart/add/direct', {
@@ -120,40 +140,7 @@ function directOrder(productId) {
 
 const productId = '<%= product.id %>'; 
 
-async function loadReviews() {
-    try {
-        const response = await fetch(`/api/reviews/${productId}`);
-        const data = await response.json();
-
-        document.getElementById('avg-rating').innerText = data.avgRating;
-        document.getElementById('review-count').innerText = data.reviewCount;
-
-        const topRatingContainer = document.getElementById('top-rating-container');
-        if (data.reviewCount > 0) {
-            const stars = '⭐'.repeat(Math.round(data.avgRating));
-            topRatingContainer.innerHTML = `<span style="color: #ff9900; letter-spacing: 2px;">${stars}</span> <strong style="color: var(--p); font-size: 16px; margin-left: 5px;">${data.avgRating}</strong> <span style="color: #888; margin-left: 5px; text-decoration: underline;">${data.reviewCount}개의 리뷰 보기</span>`;
-        } else {
-            topRatingContainer.innerHTML = `<span style="color: #999;">작성된 리뷰가 없습니다</span>`;
-        }
-
-        const reviewListDiv = document.getElementById('review-list');
-        if (data.reviews.length > 0) {
-            reviewListDiv.innerHTML = data.reviews.map(review => `
-                <div class="review-list-item">
-                    <div class="review-meta">
-                        <span class="review-author">${review.user_name}</span>
-                        <span style="color: #999;">${new Date(review.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <div class="review-stars">${'⭐'.repeat(review.rating)}</div>
-                    <p style="margin-top: 10px; color: #444; line-height: 1.5;">${review.content}</p>
-                </div>
-            `).join('');
-        } else {
-            reviewListDiv.innerHTML = '<p style="text-align:center; color:#888; padding:30px 0;">아직 작성된 리뷰가 없습니다.</p>';
-        }
-    } catch (error) { console.error(error); }
-}
-
+// [수정] 리뷰 등록 버튼 로직 (등록 후 페이지 새로고침)
 document.getElementById('submit-review-btn').addEventListener('click', async () => {
     const rating = document.getElementById('rating-select').value;
     const content = document.getElementById('review-content').value.trim();
@@ -165,13 +152,18 @@ document.getElementById('submit-review-btn').addEventListener('click', async () 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ product_id: productId, rating, content })
         });
-        if (response.status === 201) { alert('리뷰가 등록되었습니다!'); document.getElementById('review-content').value = ''; loadReviews(); } 
-        else if (response.status === 400) { alert('이미 리뷰를 작성하셨습니다.'); } 
+        
+        if (response.status === 201) { 
+            alert('리뷰가 성공적으로 등록되었습니다!'); 
+            location.reload(); // 새로고침해서 방금 쓴 리뷰 보여주기
+        } 
+        else if (response.status === 400) { alert('이미 이 상품에 리뷰를 작성하셨습니다.'); } 
         else if (response.status === 401) { alert('로그인이 필요합니다.'); location.href = '/login'; }
-    } catch (error) { alert('서버 오류 발생'); }
+    } catch (error) { 
+        console.error(error);
+        alert('서버 오류가 발생했습니다.'); 
+    }
 });
-
-loadReviews();
 </script>
 </body>
 </html>

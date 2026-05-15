@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - 모아서 프리미엄 마켓</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .mypage-container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+        
+        /* 대시보드 스타일 */
+        .user-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .summary-card { background: #fff; border: 1px solid var(--line); padding: 30px; text-align: center; border-radius: 4px; }
+        .summary-card i { font-size: 24px; color: #888; margin-bottom: 10px; }
+        .summary-card h3 { font-size: 14px; color: #666; margin-bottom: 10px; font-weight: 500; }
+        .summary-card p { font-size: 28px; font-weight: 900; color: var(--p); }
+
+        /* 섹션 공통 스타일 */
+        .mypage-section { background: #fff; border: 1px solid var(--line); padding: 40px; margin-bottom: 30px; border-radius: 4px; }
+        .section-title { font-size: 20px; font-weight: 900; color: var(--p); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; }
+        .section-title a { font-size: 13px; color: #888; font-weight: 500; text-decoration: underline; }
+
+        /* 주문 내역 카드 스타일 */
+        .order-item-card { display: flex; align-items: center; padding: 20px 0; border-bottom: 1px solid #eee; }
+        .order-item-card:last-child { border-bottom: none; }
+        .order-img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 20px; border: 1px solid #eee; }
+        .order-info { flex: 1; }
+        .order-info .date { font-size: 12px; color: #999; margin-bottom: 5px; }
+        .order-info .p-name { font-size: 16px; font-weight: 700; color: var(--p); }
+        .order-status { background: #faf9f7; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #666; }
+
+        /* 리뷰 카드 스타일 */
+        .my-review-card { background: #faf9f7; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; }
+        .review-stars { color: #ff9900; margin-bottom: 10px; font-size: 12px; }
+        .review-text { color: #444; line-height: 1.6; font-size: 14px; }
+
+        /* 입력창 공통 스타일 */
+        .edit-input { width: 100%; padding: 12px; border: 1px solid var(--line); outline: none; box-sizing: border-box; font-size: 14px; transition: border 0.3s; display: block; }
+        .edit-input:focus { border-color: var(--p); }
+    </style>
+</head>
+<body>
+
+    <div style="background:#fff; padding:20px; text-align:center; border-bottom:1px solid var(--line);">
+        <a href="/" style="font-size:24px; font-weight:900; color:#1a1a1a; letter-spacing:-1.5px; line-height:1; display:block;">모아서</a>
+        <span style="font-size:9.5px; letter-spacing:3px; color:#aaa; text-transform:uppercase;">premium market</span>
+    </div>
+
+    <div class="mypage-container">
+        
+        <h2 style="font-size: 28px; font-weight: 900; margin-bottom: 30px;">안녕하세요, <%= user.username %>님!</h2>
+
+        <div class="user-summary">
+            <div class="summary-card">
+                <i class="fa-solid fa-box"></i>
+                <h3>총 주문 건수</h3>
+                <p><%= orders.length %>건</p>
+            </div>
+            <div class="summary-card">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <h3>작성한 리뷰</h3>
+                <p><%= reviews.length %>건</p>
+            </div>
+            <div class="summary-card">
+                <i class="fa-solid fa-user-tag"></i>
+                <h3>회원 등급</h3>
+                <p>일반회원</p>
+            </div>
+        </div>
+
+        <div class="mypage-section">
+            <div class="section-title">최근 쇼핑 지출 분석</div>
+            <div style="max-width: 300px; margin: 0 auto;">
+                <canvas id="expenseChart"></canvas>
+            </div>
+            <p id="noChartMsg" style="display:none; text-align: center; color: #999; padding: 40px 0;">분석할 결제 데이터가 부족합니다.</p>
+        </div>
+
+        <div class="mypage-section">
+            <div class="section-title">
+                최근 주문 내역
+                <a href="/my/orders">전체보기</a>
+            </div>
+            <% if (orders.length > 0) { %>
+                <% orders.forEach(order => { %>
+                    <div class="order-item-card">
+                        <img src="<%= order.items[0] ? order.items[0].image_url : '/images/default.jpg' %>" class="order-img">
+                        <div class="order-info">
+                            <p class="date"><%= new Date(order.created_at).toLocaleDateString() %></p>
+                            <p class="p-name"><%= order.items[0] ? order.items[0].name : '주문 상품' %> <% if(order.items.length > 1) { %> 외 <%= order.items.length - 1 %>건 <% } %></p>
+                            <p style="font-size: 14px; margin-top: 5px;"><%= order.total_price.toLocaleString() %>원</p>
+                        </div>
+                        <span class="order-status"><%= order.status || '결제완료' %></span>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p style="text-align: center; color: #999; padding: 20px 0;">최근 주문 내역이 없습니다.</p>
+            <% } %>
+        </div>
+
+        <div class="mypage-section">
+            <div class="section-title">내가 작성한 상품 후기</div>
+            <% if (reviews.length > 0) { %>
+                <% reviews.forEach(review => { %>
+                    <div class="my-review-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong style="color: var(--p);"><%= review.p_name %></strong>
+                            <span style="font-size: 12px; color: #999;"><%= new Date(review.created_at).toLocaleDateString() %></span>
+                        </div>
+                        <div class="review-stars"><%= '⭐'.repeat(review.rating) %></div>
+                        <p class="review-text"><%= review.content %></p>
+                        
+                        <div style="margin-top: 15px; text-align: right;">
+    <button onclick="editMyReview('<%= review.review_id %>', '<%= review.rating %>', decodeURIComponent('<%= encodeURIComponent(review.content) %>'))" 
+            style="padding: 5px 12px; font-size: 12px; cursor: pointer; border: 1px solid #ccc; background: white; margin-right: 5px; border-radius: 4px;">
+        수정
+    </button>
+    <button onclick="deleteMyReview('<%= review.review_id %>')" 
+            style="padding: 5px 12px; font-size: 12px; cursor: pointer; border: 1px solid #e74c3c; background: white; color: #e74c3c; border-radius: 4px;">
+        삭제
+    </button>
+</div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p style="text-align: center; color: #999; padding: 20px 0;">작성한 리뷰가 없습니다.</p>
+            <% } %>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="openModal()" class="btn-outline" style="width: 240px; padding: 12px; cursor: pointer; font-weight: 700;">내 정보 수정하기</button>
+        </div>
+
+        <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; backdrop-filter: blur(3px);">
+            <div style="background:#fff; width:100%; max-width:440px; margin:100px auto; padding:40px; border-radius:8px; border: 1px solid var(--line); text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 25px; color: var(--p);">정보 및 배송지 수정</h3>
+                <form action="/my/update" method="POST">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; font-size:12px; color:#888; margin-bottom:8px;">사용자 성함</label>
+                        <input type="text" name="username" value="<%= user.username %>" required class="edit-input">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; font-size:12px; color:#888; margin-bottom:8px;">새 비밀번호 (변경 시에만 입력)</label>
+                        <input type="password" name="new_password" placeholder="변경하려면 입력하세요" class="edit-input">
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; font-size:12px; color:#888; margin-bottom:8px;">기본 주소</label>
+                        <input type="text" name="address" value="<%= user.address || '' %>" placeholder="기본 주소를 입력하세요" class="edit-input">
+                    </div>
+                    <div style="margin-bottom: 25px;">
+                        <label style="display:block; font-size:12px; color:#888; margin-bottom:8px;">상세 주소</label>
+                        <input type="text" name="address_detail" value="<%= user.address_detail || '' %>" placeholder="아파트 동/호수 등 상세 주소" class="edit-input">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn-primary" style="flex:1; padding: 12px; cursor: pointer;">변경사항 저장</button>
+                        <button type="button" onclick="closeModal()" class="btn-outline" style="flex:1; padding: 12px; cursor: pointer;">취소</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 50px;">
+            <a href="/logout" style="color: #f44336; font-size: 14px; text-decoration: underline;">로그아웃</a>
+        </div>
+    </div>
+
+    <div id="reviewEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; backdrop-filter: blur(3px);">
+    <div style="background:#fff; width:100%; max-width:440px; margin:100px auto; padding:40px; border-radius:8px; border: 1px solid var(--line); text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 25px; color: var(--p);">리뷰 수정</h3>
+        
+        <input type="hidden" id="edit-review-id">
+
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-size:12px; color:#888; margin-bottom:8px;">별점</label>
+            <select id="edit-review-rating" class="edit-input">
+                <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
+                <option value="4">⭐⭐⭐⭐ (4점)</option>
+                <option value="3">⭐⭐⭐ (3점)</option>
+                <option value="2">⭐⭐ (2점)</option>
+                <option value="1">⭐ (1점)</option>
+            </select>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+            <label style="display:block; font-size:12px; color:#888; margin-bottom:8px;">리뷰 내용</label>
+            <textarea id="edit-review-content" class="edit-input" style="min-height: 120px; resize: vertical;" placeholder="수정할 내용을 입력하세요"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="submitReviewEdit()" class="btn-primary" style="flex:1; padding: 12px; cursor: pointer;">수정 완료</button>
+            <button type="button" onclick="closeReviewModal()" class="btn-outline" style="flex:1; padding: 12px; cursor: pointer;">취소</button>
+        </div>
+    </div>
+</div>
+
+    <script>
+        function openModal() { document.getElementById('editModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+        
+        window.onkeydown = function(event) {
+            if (event.keyCode == 27) { closeModal(); }
+        }
+
+        // --- Chart.js 구현 영역 ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const statsData = <%- JSON.stringify(typeof stats !== 'undefined' ? stats : []) %>;
+            const canvas = document.getElementById('expenseChart');
+            const noMsg = document.getElementById('noChartMsg');
+
+            if (statsData && statsData.length > 0) {
+                canvas.style.display = 'block';
+                noMsg.style.display = 'none';
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: statsData.map(item => item.category || '기타'),
+                        datasets: [{
+                            data: statsData.map(item => item.total),
+                            backgroundColor: ['#1a1a1a', '#e67e22', '#27ae60', '#f1c40f', '#2980b9'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        cutout: '70%',
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            } else {
+                canvas.style.display = 'none';
+                noMsg.style.display = 'block';
+            }
+        });
+
+        // --- [추가된 부분] 리뷰 수정 및 삭제 스크립트 ---
+
+        // 1. 리뷰 삭제 함수
+        async function deleteMyReview(reviewId) {
+            if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+            
+            try {
+                const res = await fetch(`/my/review/delete/${reviewId}`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert('리뷰가 삭제되었습니다.');
+                    location.reload(); // 성공 시 새로고침
+                } else {
+                    alert(data.message || '삭제에 실패했습니다.');
+                }
+            } catch (err) {
+                alert('서버와 통신 중 오류가 발생했습니다.');
+            }
+        }
+
+        // --- [변경] 리뷰 수정 모달 관련 스크립트 ---
+
+// 모달 닫기 함수
+function closeReviewModal() {
+    document.getElementById('reviewEditModal').style.display = 'none';
+}
+
+// 1. [수정] 버튼을 눌렀을 때: 기존 데이터를 모달창에 채우고 띄우기
+function editMyReview(reviewId, currentRating, currentContent) {
+    document.getElementById('edit-review-id').value = reviewId;
+    document.getElementById('edit-review-rating').value = currentRating;
+    document.getElementById('edit-review-content').value = currentContent;
+    
+    document.getElementById('reviewEditModal').style.display = 'block';
+}
+
+// 2. 모달창에서 [수정 완료] 버튼을 눌렀을 때: 서버로 전송
+async function submitReviewEdit() {
+    const reviewId = document.getElementById('edit-review-id').value;
+    const newRating = document.getElementById('edit-review-rating').value;
+    const newContent = document.getElementById('edit-review-content').value.trim();
+
+    if (!newContent) {
+        alert('리뷰 내용을 입력해주세요.');
+        return;
+    }
+
+    try {
+        const res = await fetch(`/my/review/edit/${reviewId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rating: newRating, content: newContent })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            alert('리뷰가 성공적으로 수정되었습니다.');
+            location.reload(); // 화면 새로고침
+        } else {
+            alert(data.message || '수정에 실패했습니다.');
+        }
+    } catch (err) {
+        alert('서버와 통신 중 오류가 발생했습니다.');
+    }
+}
+    </script>
+</body>
+</html>
