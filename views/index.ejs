@@ -132,9 +132,12 @@
         .hf-label-tip{position:absolute;right:52px;top:50%;transform:translateY(-50%);background:#1a1a1a;color:#fff;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;letter-spacing:.5px}
         .hf-label:hover .hf-label-tip{opacity:1}
 
-        .star-rating {display:flex;align-items:center;margin:4px 0}
-        .stars {color:#FFD700;font-size:13px;letter-spacing:-1px}
-        .rating-value {color:#666;font-size:12px;font-weight:700;margin-left:4px}
+        /* 반개 별점 연산을 위한 핵심 슬라이스 처리 CSS */
+        .star-rating-display { font-size: 14px; color: #ddd; position: relative; display: inline-flex; align-items: center; margin: 4px 0; }
+        .star-rating-display .star { position: relative; display: inline-block; letter-spacing: -2px; }
+        .star-rating-display .star.full { color: #ff9900; }
+        .star-rating-display .star.half::before { content: '\2605'; color: #ff9900; position: absolute; left: 0; width: 50%; overflow: hidden; }
+        .rating-value { color: #666; font-size: 12px; font-weight: 700; margin-left: 6px; }
     </style>
 </head>
 
@@ -256,7 +259,7 @@
         </div>
     </aside>
 
-    <main class="content">
+    <aside class="content">
         <div class="sec-hd">
             <span class="sec-ttl">베스트 상품</span>
             <span class="sec-en">BEST ITEMS</span>
@@ -273,10 +276,20 @@
                             <div class="slide-info-col">
                                 <div><span class="slide-rank">BEST 0<%= i+1 %></span></div>
                                 <div class="slide-name"><%= item.name %></div>
-                                <div class="star-rating">
-                                    <span class="stars"><%= '★'.repeat(Math.round(item.rating || 0)) %><%= '☆'.repeat(5 - Math.round(item.rating || 0)) %></span>
-                                    <span class="rating-value"><%= item.rating ? Number(item.rating).toFixed(1) : '0.0' %></span>
+                                
+                                <div class="star-rating-display">
+                                    <% 
+                                        let bAvg = parseFloat(item.rating || 0);
+                                        let bFull = Math.floor(bAvg); 
+                                        let bHalf = (bAvg % 1) >= 0.5; 
+                                        let bEmpty = 5 - bFull - (bHalf ? 1 : 0);
+                                    %>
+                                    <% for(let k=0; k<bFull; k++){ %><span class="star full">&#9733;</span><% } %>
+                                    <% if(bHalf){ %><span class="star half">&#9733;</span><% } %>
+                                    <% for(let k=0; k<bEmpty; k++){ %><span class="star empty">&#9734;</span><% } %>
+                                    <span class="rating-value"><%= bAvg.toFixed(1) %></span>
                                 </div>
+                                
                                 <div class="slide-price"><%= item.price.toLocaleString() %><em>원</em></div>
                                 <a href="/product/<%= item.id %>"><div class="slide-cta">상품 보러가기 &nbsp;→</div></a>
                             </div>
@@ -317,10 +330,20 @@
                                             <img src="<%= monthlyData[m][i].image_url %>" class="m-img" alt="<%= monthlyData[m][i].name %>" onerror="this.src='/images/default.jpg'">
                                             <div class="m-body">
                                                 <div class="m-name"><%= monthlyData[m][i].name %></div>
-                                                <div class="star-rating">
-                                                    <span class="stars"><%= '★'.repeat(Math.round(monthlyData[m][i].rating || 0)) %><%= '☆'.repeat(5 - Math.round(monthlyData[m][i].rating || 0)) %></span>
-                                                    <span class="rating-value"><%= monthlyData[m][i].rating ? Number(monthlyData[m][i].rating).toFixed(1) : '0.0' %></span>
+                                                
+                                                <div class="star-rating-display">
+                                                    <% 
+                                                        let mAvg = parseFloat(monthlyData[m][i].rating || 0);
+                                                        let mFull = Math.floor(mAvg); 
+                                                        let mHalf = (mAvg % 1) >= 0.5; 
+                                                        let mEmpty = 5 - mFull - (mHalf ? 1 : 0);
+                                                    %>
+                                                    <% for(let k=0; k<mFull; k++){ %><span class="star full">&#9733;</span><% } %>
+                                                    <% if(mHalf){ %><span class="star half">&#9733;</span><% } %>
+                                                    <% for(let k=0; k<mEmpty; k++){ %><span class="star empty">&#9734;</span><% } %>
+                                                    <span class="rating-value"><%= mAvg.toFixed(1) %></span>
                                                 </div>
+                                                
                                                 <div class="m-price"><%= monthlyData[m][i].price.toLocaleString() %>원</div>
                                             </div>
                                             <span class="m-cat-icon"><%= catIcon %></span>
@@ -348,10 +371,20 @@
                                             <img src="<%= monthlyData[m][i].image_url %>" class="m-img" alt="<%= monthlyData[m][i].name %>" onerror="this.src='/images/default.jpg'">
                                             <div class="m-body">
                                                 <div class="m-name"><%= monthlyData[m][i].name %></div>
-                                                <div class="star-rating">
-                                                    <span class="stars"><%= '★'.repeat(Math.round(monthlyData[m][i].rating || 0)) %><%= '☆'.repeat(5 - Math.round(monthlyData[m][i].rating || 0)) %></span>
-                                                    <span class="rating-value"><%= monthlyData[m][i].rating ? Number(monthlyData[m][i].rating).toFixed(1) : '0.0' %></span>
+                                                
+                                                <div class="star-rating-display">
+                                                    <% 
+                                                        let mAvg2 = parseFloat(monthlyData[m][i].rating || 0);
+                                                        let mFull2 = Math.floor(mAvg2); 
+                                                        let mHalf2 = (mAvg2 % 1) >= 0.5; 
+                                                        let mEmpty2 = 5 - mFull2 - (mHalf2 ? 1 : 0);
+                                                    %>
+                                                    <% for(let k=0; k<mFull2; k++){ %><span class="star full">&#9733;</span><% } %>
+                                                    <% if(mHalf2){ %><span class="star half">&#9733;</span><% } %>
+                                                    <% for(let k=0; k<mEmpty2; k++){ %><span class="star empty">&#9734;</span><% } %>
+                                                    <span class="rating-value"><%= mAvg2.toFixed(1) %></span>
                                                 </div>
+                                                
                                                 <div class="m-price"><%= monthlyData[m][i].price.toLocaleString() %>원</div>
                                             </div>
                                             <span class="m-cat-icon"><%= catIcon %></span>
@@ -370,7 +403,7 @@
                 <% } %>
             </div>
         </div>
-    </main>
+    </aside>
 </div>
 
 <script>

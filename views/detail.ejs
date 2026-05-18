@@ -29,10 +29,21 @@
         .review-meta { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
         .review-author { font-weight: 700; color: var(--p); }
         .review-stars { color: #ff9900; letter-spacing: 2px; }
+        .star-rating-display { font-size: 20px; color: #ddd; position: relative; display: inline-block; }
+        .star-rating-display .star { position: relative; display: inline-block; }
+        .star-rating-display .star.full { color: #ff9900; }
+        .star-rating-display .star.half::before { content: '\2605'; color: #ff9900; position: absolute; left: 0; width: 50%; overflow: hidden; }
+        .action-btn { background: none; border: 1px solid #ccc; padding: 4px 8px; font-size: 12px; cursor: pointer; margin-left: 5px; border-radius: 4px; color: #666; }
+        .action-btn:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
-
+<% 
+    let rAvg = parseFloat(avgRating || 0);
+    let fStars = Math.floor(rAvg); 
+    let hStar = (rAvg % 1) >= 0.5; 
+    let eStars = 5 - fStars - (hStar ? 1 : 0);
+%>
 <div style="background:#fff; padding:20px; text-align:center; border-bottom:1px solid var(--line);">
     <a href="/" style="font-size:24px; font-weight:900; color:#1a1a1a; letter-spacing:-1.5px; line-height:1; display:block;">모아서</a>
     <span style="font-size:9.5px; letter-spacing:3px; color:#aaa; text-transform:uppercase;">premium market</span>
@@ -49,7 +60,11 @@
             
             <div id="top-rating-container" style="margin-bottom: 20px; font-size: 14px; cursor: pointer;" onclick="window.scrollTo({top: document.querySelector('.review-container').offsetTop, behavior: 'smooth'})">
                 <% if (totalReviews > 0) { %>
-                    <span style="color: #ff9900; letter-spacing: 2px;"><%= '⭐'.repeat(Math.round(avgRating)) %></span>
+                    <div class="star-rating-display">
+                        <% for(let i=0; i<fStars; i++){ %><span class="star full">&#9733;</span><% } %>
+                        <% if(hStar){ %><span class="star half">&#9733;</span><% } %>
+                        <% for(let i=0; i<eStars; i++){ %><span class="star empty">&#9734;</span><% } %>
+                    </div>
                     <strong style="color: var(--p); font-size: 16px; margin-left: 5px;"><%= avgRating %></strong>
                     <span style="color: #888; margin-left: 5px; text-decoration: underline;"><%= totalReviews %>개의 리뷰 보기</span>
                 <% } else { %>
@@ -84,7 +99,16 @@
     <div class="review-container">
         <div class="review-header">
             <h3>⭐ 고객 리뷰 (<%= totalReviews %>건)</h3>
-            <h2 style="font-size: 20px; color: #ff9900; margin: 0;">평균 평점: <%= avgRating %> / 5.0</h2>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <% if (totalReviews > 0) { %>
+                    <div class="star-rating-display">
+                        <% for(let i=0; i<fStars; i++){ %><span class="star full">&#9733;</span><% } %>
+                        <% if(hStar){ %><span class="star half">&#9733;</span><% } %>
+                        <% for(let i=0; i<eStars; i++){ %><span class="star empty">&#9734;</span><% } %>
+                    </div>
+                <% } %>
+                <h2 style="font-size: 20px; color: #ff9900; margin: 0;"><%= avgRating %> / 5.0</h2>
+            </div>
         </div>
 
         <div class="review-form">
@@ -104,17 +128,27 @@
             <% if (reviews && reviews.length > 0) { %>
                 <% reviews.forEach(function(review) { %>
                     <div class="review-list-item">
-    <div class="review-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span class="review-author" style="font-weight: 700; color: var(--p);">
-            <%= review.userid ? review.userid + ' 님' : '익명 사용자' %>
-        </span>
-        <span style="color: #999; font-size: 14px;">
-            <%= new Date(review.created_at).toLocaleDateString() %>
-        </span>
-    </div>
-    <div class="review-stars"><%= '⭐'.repeat(review.rating) %></div>
-    <p style="margin-top: 10px; color: #444; line-height: 1.5;"><%= review.content %></p>
-</div>
+                        <div class="review-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span class="review-author" style="font-weight: 700; color: var(--p);">
+                                <%= review.user_name || review.userid ? (review.user_name || review.userid) + ' 님' : '익명 사용자' %>
+                            </span>
+                            <div style="display: flex; align-items: center;">
+                                <span style="color: #999; font-size: 14px; margin-right: 10px;">
+                                    <%= new Date(review.created_at).toLocaleDateString() %>
+                                </span>
+                                <% if (typeof user !== 'undefined' && user) { %>
+                                    <% if (user.id === review.user_id) { %>
+                                        <button class="action-btn" onclick="editReview('<%= review.review_id %>', '<%= review.rating %>', '<%= review.content.replace(/\'/g, "\\'") %>')">수정</button>
+                                    <% } %>
+                                    <% if (user.id === review.user_id || user.role === 'admin') { %>
+                                        <button class="action-btn" onclick="deleteReview('<%= review.review_id %>')">삭제</button>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="review-stars"><%= '⭐'.repeat(review.rating) %></div>
+                        <p style="margin-top: 10px; color: #444; line-height: 1.5;"><%= review.content %></p>
+                    </div>
                 <% }); %>
             <% } else { %>
                 <p style="text-align:center; color:#888; padding:30px 0;">아직 작성된 리뷰가 없습니다.</p>
@@ -123,7 +157,6 @@
     </div>
 
 <script>
-// 바로 구매 기능은 유지
 function directOrder(productId) {
     const qty = document.querySelector('input[name="quantity"]').value;
     fetch('/cart/add/direct', {
@@ -140,14 +173,13 @@ function directOrder(productId) {
 
 const productId = '<%= product.id %>'; 
 
-// [수정] 리뷰 등록 버튼 로직 (등록 후 페이지 새로고침)
 document.getElementById('submit-review-btn').addEventListener('click', async () => {
     const rating = document.getElementById('rating-select').value;
     const content = document.getElementById('review-content').value.trim();
     if (!content) { alert('리뷰 내용을 입력해주세요.'); return; }
 
     try {
-        const response = await fetch('/api/reviews', {
+        const response = await fetch('/reviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ product_id: productId, rating, content })
@@ -155,15 +187,62 @@ document.getElementById('submit-review-btn').addEventListener('click', async () 
         
         if (response.status === 201) { 
             alert('리뷰가 성공적으로 등록되었습니다!'); 
-            location.reload(); // 새로고침해서 방금 쓴 리뷰 보여주기
+            location.reload(); 
         } 
         else if (response.status === 400) { alert('이미 이 상품에 리뷰를 작성하셨습니다.'); } 
         else if (response.status === 401) { alert('로그인이 필요합니다.'); location.href = '/login'; }
+        else { alert('서버 오류가 발생했습니다.'); }
     } catch (error) { 
-        console.error(error);
         alert('서버 오류가 발생했습니다.'); 
     }
 });
+
+async function editReview(reviewId, currentRating, currentContent) {
+    const newContent = prompt('수정할 내용을 입력하세요:', currentContent);
+    if (newContent === null) return;
+    if (newContent.trim() === '') { alert('내용을 입력해주세요.'); return; }
+    
+    let newRating = prompt('수정할 별점을 입력하세요 (1~5):', currentRating);
+    if (newRating === null) return;
+    newRating = parseInt(newRating);
+    if (isNaN(newRating) || newRating < 1 || newRating > 5) { alert('1에서 5 사이의 숫자를 입력해주세요.'); return; }
+
+    try {
+        const response = await fetch('/reviews/' + reviewId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rating: String(newRating), content: newContent })
+        });
+        
+        if (response.ok) { 
+            location.reload(); 
+        } else { 
+            const data = await response.json();
+            alert(data.error || '수정 실패'); 
+        }
+    } catch (error) {
+        alert('서버 오류가 발생했습니다.');
+    }
+}
+
+async function deleteReview(reviewId) {
+    if (!confirm('이 리뷰를 삭제하시겠습니까?')) return;
+
+    try {
+        const response = await fetch('/reviews/' + reviewId, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) { 
+            location.reload(); 
+        } else { 
+            const data = await response.json();
+            alert(data.error || '삭제 실패'); 
+        }
+    } catch (error) {
+        alert('서버 오류가 발생했습니다.');
+    }
+}
 </script>
 </body>
 </html>
