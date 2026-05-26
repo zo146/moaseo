@@ -132,7 +132,6 @@
         .hf-label-tip{position:absolute;right:52px;top:50%;transform:translateY(-50%);background:#1a1a1a;color:#fff;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;letter-spacing:.5px}
         .hf-label:hover .hf-label-tip{opacity:1}
 
-        /* 반개 별점 연산을 위한 핵심 슬라이스 처리 CSS */
         .star-rating-display { font-size: 14px; color: #ddd; position: relative; display: inline-flex; align-items: center; margin: 4px 0; }
         .star-rating-display .star { position: relative; display: inline-block; letter-spacing: -2px; }
         .star-rating-display .star.full { color: #ff9900; }
@@ -153,8 +152,6 @@
             <a href="/login">로그인</a><span class="t-sep">|</span>
             <a href="/signup">회원가입</a>
         <% } %>
-        <span class="t-sep">|</span>
-        <a href="/cs">고객센터</a>
     </div>
 </div>
 
@@ -227,6 +224,14 @@
         </div>
     </div>
     <div class="half-sep"></div>
+    <div class="half-float-item" onclick="location.href='/mypage'">
+        <span class="half-float-tip">마이페이지</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+    </div>
+    <div class="half-sep"></div>
     <div class="half-float-item" onclick="location.href='/cart'">
         <span class="half-float-tip">장바구니</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round">
@@ -291,7 +296,7 @@
                                 </div>
                                 
                                 <div class="slide-price"><%= item.price.toLocaleString() %><em>원</em></div>
-                                <a href="/product/<%= item.id %>"><div class="slide-cta">상품 보러가기 &nbsp;→</div></a>
+                                <a href="/product/<%= item.id %>"><div class="slide-cta">상품 보러가기  →</div></a>
                             </div>
                         </div>
                     <% }) %>
